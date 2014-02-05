@@ -42,7 +42,7 @@ This message requests information from the slave’s operating state. Querying c
 
   * Message Response – {IMC_RSP_OK, IMC_RSP_UNKNOWN, IMC_RSP_ERROR} – 1 byte
   * Slave status – {IMC_STATUS_OK or error code} – 1 byte
-  * Actuator location (in steps) – uint32
+  * Actuator location (in steps) – int32
   * Queued moves – uint8
   * Average sync error in microseconds – uint32. The average time elapsed between move completion (releasing Move Complete pin) and Move Complete pin going high.
 
