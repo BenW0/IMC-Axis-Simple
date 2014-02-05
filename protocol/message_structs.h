@@ -2,10 +2,12 @@
 #define message_structs_h
 
 #include <stdint.h>
+<<<<<<< HEAD
 #include "constants.h"
 
 ////////////////////// Message Packet Structures /////////////////////////////////
 // All
+
 typedef struct __attribute__((__packed__)){
   uint16_t host_revision;
   uint8_t  reserved[6];
@@ -83,6 +85,7 @@ const uint8_t imc_message_length[imc_message_type_count + 1] = {0, sizeof(msg_in
 const uint8_t imc_resp_length[imc_message_type_count + 1] = {0, sizeof(rsp_initialize_t), 
                               sizeof(rsp_status_t), sizeof(rsp_home_t), sizeof(rsp_queue_move_t),
                               sizeof(rsp_get_param_t), sizeof(rsp_set_param_t)};
+
 #endif
 
 

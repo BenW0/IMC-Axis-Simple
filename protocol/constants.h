@@ -16,7 +16,6 @@ typedef enum __attribute__ ((__packed__)) {
   IMC_MSG_SETPARAM = 6,
 } imc_message_type;
 
-
 typedef enum __attribute__ ((__packed__)) {
   IMC_RSP_OK,
   IMC_RSP_UNKNOWN,
