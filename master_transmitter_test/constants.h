@@ -17,7 +17,7 @@ typedef enum __attribute__ ((__packed__)) {
 } imc_message_type;
 
 
-typedef enum __attribute__ ((__packed__)) {
+typedef enum  __attribute__ ((__packed__)) {
   IMC_RSP_OK,
   IMC_RSP_UNKNOWN,
   IMC_RSP_ERROR,

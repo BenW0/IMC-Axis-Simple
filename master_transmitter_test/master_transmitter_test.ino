@@ -41,12 +41,17 @@ void loop() {
     {
       // read the rest of the message
       uint8_t gotbytes = (uint8_t)Serial.readBytes((char*)data + 1, imc_message_length[header]);
+      Serial.print("Got ");
+      Serial.print(gotbytes);
+      Serial.print(" bytes from serial. Need ");
+      Serial.print(imc_message_length[header]);
+      Serial.println(" bytes for packet.");
       if( gotbytes >= imc_message_length[header] )
       {
         // forward the message to the slave
         Wire.beginTransmission(SLAVE_ADDR);
         Wire.write(data, imc_message_length[header] + 1);
-        switch(Wire.endTransmission(false))    // done transmitting, but don't want to release the bus.
+        switch(Wire.endTransmission(true))    // done transmitting, but don't want to release the bus.
         {
         case 1:
           Serial.println("Data too long to fit in Transmit buffer");
@@ -62,16 +67,20 @@ void loop() {
           break;
         }
         
-        // read back the response
-        Wire.requestFrom((uint8_t)SLAVE_ADDR, imc_resp_length[header]);
+        Serial.println("Packet Sent. Requesting reply...");
         
-        for( i = 0; i < imc_resp_length[header] && Wire.available() > 0; i++ )
+        // read back the response - we will need imc_resp_length[header] + 1 because of the added response byte.
+        Wire.requestFrom((uint8_t)SLAVE_ADDR, (uint8_t)(imc_resp_length[header] + 1));
+        
+        for( i = 0; i <= imc_resp_length[header] && Wire.available(); i++ )
           data[i] = Wire.read();
-        if( i < imc_resp_length[header] )
-          Serial.print("Slave did not return enough bytes");
+        if( i < imc_resp_length[header] + 1 )
+          Serial.println("Slave did not return enough bytes");
+        else
+          Serial.println("Slave responded correctly.");
         
         // write the response back to the PC
-        Serial.write(data, imc_resp_length[header]);
+        Serial.write(data, imc_resp_length[header] + 1);
       }
       else    // gotbytes < imc_message_length[header]
       {
