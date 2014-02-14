@@ -46,6 +46,7 @@ typedef struct __attribute__((__packed__)){
 typedef struct __attribute__((__packed__)){
   uint16_t slave_hw_ver;
   uint16_t slave_fw_ver;
+  uint16_t queue_depth;
 } rsp_initialize_t;
 
 typedef struct __attribute__(__packed__)){

@@ -91,10 +91,11 @@ def sendPacket(serobj, pack, resp_fmt) :
 def sendInit(serobj, fwver = 0, reserved = (0,0)) :
     # Pack the Init message
     pack = struct.pack("=BHLH", IMC_MSG_INITIALIZE, fwver, reserved[0], reserved[1])
-    resp = sendPacket(serobj, pack, "=BHH")
+    resp = sendPacket(serobj, pack, "=BHHH")
     print "Response:", resp[0]
     print "Slave hw rev:", resp[1]
     print "Slave fw rev:", resp[2]
+    print "Slave queue depth:", resp[3]
             
 
 
