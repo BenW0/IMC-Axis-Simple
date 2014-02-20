@@ -28,7 +28,8 @@ controller board. Slave addresses count upwards from a base address, specified i
 Messages always consist of two sections - a transmission and a response. The transmission consists of a byte for message type,
 a structure of message content, and finishes with a parity byte. The response consists of a response byte, followed by the 
 pre-determined number of bytes in the response structure, and concluding with another parity byte. Parity is computed using
-a longitudinal parity check to detect communication errors.
+a longitudinal xor computation to detect communication errors. Even if the slave has an error, the current implementation requires
+it to reply with the expected number of bytes, even if they are just meaningless.
 
 ###*Initialize*
 
@@ -172,4 +173,4 @@ When i2c reports a communication error in the transmission, or messages fail par
  * Slaves should only execute commands received without errors and with correct parity.
  * After executing, the slave responds with an "OK" response byte, informing the master of success.
  * Master will re-transmit packets if transmit errors occur, and will retransmit packets if slave response indicates transmission error (i.e. IMC_RSP_ERROR or IMC_RSP_UNKNOWN).
- * The master will re-request responses if communication/parity issues occur in receiving the response.
+ * The master will re-request responses (but NOT re-transmit the original packets) if communication/parity issues occur in receiving the response.
