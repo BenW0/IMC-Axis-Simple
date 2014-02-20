@@ -34,7 +34,7 @@ CXX = $(COMPILER)/arm-none-eabi-g++
 OBJCOPY = $(COMPILER)/arm-none-eabi-objcopy
 SIZE = $(COMPILER)/arm-none-eabi-size
 
-OBJECTS    = hardware.o
+OBJECTS    = hardware.o stepper.o queue.o test.o protocol/message_structs.o
 
 VENDOR_C = $(wildcard $(VENDOR)/*.c)
 VENDOR_OBJECTS = $(patsubst %.c,%.o,$(VENDOR_C))
@@ -42,6 +42,10 @@ VENDOR_OBJECTS = $(patsubst %.c,%.o,$(VENDOR_C))
 %.hex: %.elf
 	$(SIZE) $<
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
+
+
+test.elf: $(OBJECTS) $(VENDOR_OBJECTS) 
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) $(VENDOR_OBJECTS) $(LIBS) 
 
 -include $(OBJS:.o=.d)
 
