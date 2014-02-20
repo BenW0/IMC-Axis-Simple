@@ -68,9 +68,10 @@ Adds a queue to the slave’s move queue
   * Message ID – IMC_MSG_QUEUEMOVE – 1 byte
   * Axis move length in steps – int32
   * Total move length in steps – uint32
-  * Initial rate in μs/step – uint32
-  * Final rate in μs/step – uint32
-  * Acceleration in (μs/step)/step – uint32
+  * Initial rate in steps/minute – uint32
+  * Nominal feedrate in steps/minute – uint32
+  * Final rate in steps/minute – uint32
+  * Acceleration in (steps/minute*minute) – uint32
   * Step number to stop accelerating at – uint32
   * Step number to start decelerating at – uint32
 
