@@ -4,15 +4,31 @@ Matthew Sorensen and Ben Weiss
 
 Winter 2014 // ME 498/599
 
-This document describes the structure and flow of communications between the host Arduino and the slave motor driver microcontrollers. The protocol used (tentatively I²C) is assumed to allow communication between the master and a single slave at a time, and the address information is assumed integrated into the protocol layer.
+This document describes the structure and flow of communications between the host Arduino and the slave motor driver 
+microcontrollers. The protocol used (tentatively I²C) is assumed to allow communication between the master and a single
+slave at a time, and the address information is assumed integrated into the protocol layer.
 
-The master initiates all messages, and all messages terminate with a response acknowledging successful processing and (if needed) including the information requested by the message. 
+The master initiates all messages, and all messages terminate with a response acknowledging successful processing 
+and (if needed) including the information requested by the message. 
 
-In addition to the following messages, two synchronization lines are attached to every processor in the chain. The first is a broadcast pin for starting synchronized movements, set by the master and read via an interrupt on each slave. The second is a “move complete” pin, which is pulled high by resistor. When a move is begun, every node on the bus pulls the line low, indicating the move is in progress. In this case, every microcontroller on the bus (master and slave) is considered a node. When a node finishes a move, it tri-states the pin indicating its completion, then measures the time until the move complete pin goes high. This time serves as an indicator of how well-synchronized the move was, and can be reported to the master in the status query.
+In addition to the following messages, one synchronization line is attached to every processor in the chain. It behaves as
+a "move complete" pin, which is pulled high by resistor. To start a move, the Master allows the line to be pulled high. 
+After a specified delay, every slave on the bus (and the master, if the master is also executing the move) pulls the line low, 
+indicating the move is in progress. When a slave (or master) finishes a move, it tri-states the pin indicating its completion, 
+then measures the time until the move complete pin goes high, indicating the start of the next move. This time serves as an 
+indicator of how well-synchronized the move was, and can be reported to the master in the status query.
 
-Slave addresses are assigned according to the axis the slave controls, which is set by dip switches on each motor controller board.
+Slave addresses are assigned according to the axis the slave controls, which is set by dip switches on each motor 
+controller board. Slave addresses count upwards from a base address, specified in Marlin/Configuration.h and on each slave.
 
 ##Messages
+
+### General Message Structure
+
+Messages always consist of two sections - a transmission and a response. The transmission consists of a byte for message type,
+a structure of message content, and finishes with a parity byte. The response consists of a response byte, followed by the 
+pre-determined number of bytes in the response structure, and concluding with another parity byte. Parity is computed using
+a longitudinal parity check to detect communication errors.
 
 ###*Initialize*
 
@@ -111,20 +127,25 @@ Sets a controller parameter on the slave. Assumes consistent byte order between 
 ##Slave Parameters
 
 More parameters will be added in future slave firmware revisions to support more interesting control architectures.
-
-  * IMC_PARAM_ERROR_INFO1 – additional error information (error-dependent). Read-only.
-  * IMC_PARAM_ERROR_INFO2 – additional error information (error-dependent). Read-only.
-  * IMC_PARAM_FLIP_AXIS – flip the axis? (1 = normal, -1 = reverse) Used for enforcing limit switch logic and move direction.
-  * IMC_PARAM_ENFORCE_LIMITS – stop motion on limit switch hit
-  * IMC_PARAM_MIN_LIMIT_EN – enable minimum limit switch
-  * IMC_PARAM_MIN_LIMIT_INV – invert minimum limit switch logic
-  * IMC_PARAM_MIN_LIMIT_PULLUP – enable pullup on minimum limit switch 
-  * IMC_PARAM_MAX_LIMIT_EN – enable minimum limit switch
-  * IMC_PARAM_MAX_LIMIT_INV – invert minimum limit switch logic
-  * IMC_PARAM_MAX_LIMIT_PULLUP – enable pullup on minimum limit switch
-  * IMC_PARAM_MOTOR_ON – motor driver enabled. Read/write.
-  * IMC_PARAM_MOTOR_IDLE_TIMEOUT – time to wait before automatically disabling motors.
-  * IMC_PARAM_SLOWDOWN – engage “slowdown” mode so buffers can fill. Not set locally (only via host)
+*  IMC_PARAM_ERROR_INFO1  – additional error information (error-dependent). Read-only.
+*  IMC_PARAM_ERROR_INFO2 – additional error information (error-dependent). Read-only.
+*  IMC_PARAM_FLIP_AXISS – flip the axis? (1 = normal, -1 = reverse) Used for enforcing limit switch logic and move direction.
+*  IMC_PARAM_HOME_DIR
+*  IMC_PARAM_MIN_SOFTWARE_ENDSTOPS – stop motion on limit switch hit
+*  IMC_PARAM_MAX_SOFTWARE_ENDSTOPS – stop motion on limit switch hit
+*  IMC_PARAM_MIN_LIMIT_EN – enable minimum limit switch
+*  IMC_PARAM_MIN_LIMIT_INV – invert minimum limit switch logic
+*  IMC_PARAM_MIN_LIMIT_PULLUP – enable pullup on minimum limit switch 
+*  IMC_PARAM_MAX_LIMIT_EN – enable minimum limit switch
+*  IMC_PARAM_MAX_LIMIT_INV – invert minimum limit switch logic
+*  IMC_PARAM_MAX_LIMIT_PULLUP – enable pullup on minimum limit switch
+*  IMC_PARAM_MIN_POS - minimum allowable position of the motor
+*  IMC_PARAM_MAX_POS - maximum allowable position of the motor
+*  IMC_PARAM_HOME_POS - position to assign when home switch trips
+*  IMC_PARAM_HOMING_FEEDRATE - feedrate to use when homing (steps/sec)
+*  IMC_PARAM_MOTOR_ON – motor driver enabled. Read/write.
+*  IMC_PARAM_MOTOR_IDLE_TIMEOUT – time to wait before automatically disabling motors.
+*  IMC_PARAM_SLOWDOWN – engage “slowdown” mode so buffers can fill. Not set locally (only via host)
 
 
 ## Slave Error Codes
@@ -145,3 +166,10 @@ Motion isn’t happening (we’re sending current to the motor, but nothing’s 
 
 The requested move took longer than the watchdog timer allows for a single move. This is generally thrown if a homing routine was started but the limit switch never triggered.
 
+# Communication Errors
+
+When i2c reports a communication error in the transmission, or messages fail parity checks on either end, the defined behavior is as follows:
+ * Slaves should only execute commands received without errors and with correct parity.
+ * After executing, the slave responds with an "OK" response byte, informing the master of success.
+ * Master will re-transmit packets if transmit errors occur, and will retransmit packets if slave response indicates transmission error (i.e. IMC_RSP_ERROR or IMC_RSP_UNKNOWN).
+ * The master will re-request responses if communication/parity issues occur in receiving the response.
