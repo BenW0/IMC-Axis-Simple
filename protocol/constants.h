@@ -45,7 +45,6 @@ typedef enum __attribute__ ((__packed__)) {
   IMC_PARAM_MOTOR_IDLE_TIMEOUT,
   IMC_PARAM_SLOWDOWN
 } imc_axis_parameter;
-} imc_axis_parameter;
 
 typedef enum __attribute__ ((__packed__)) {
   IMC_NO_PULL,
