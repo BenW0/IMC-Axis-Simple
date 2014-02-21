@@ -20,11 +20,9 @@ void pit2_isr(void){
   PIT_TCTRL2 &= ~TEN; 
   if(PIT_LDVAL2 == SYNC_DELAY){
     // Configure this as output pulled low
-    SYNC_CTRL = STANDARD_OUTPUT;
     CONTROL_DDR |= SYNC_BIT;
-    CONTROL_PORT(COR) = SYNC_BIT;
   }else{ // We've timed out and bad things are happening
     // For testing purposes, just keep executing
-    //   PIT_TCTRL0 |= TEN | TIE;
+    while(1);
   }
 }

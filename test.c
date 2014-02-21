@@ -12,11 +12,11 @@ int main(void){
   test.length = 100;
   test.total_length = 100;
   test.initial_rate = 800;
-  test.final_rate = 900;
+  test.final_rate = 800;
   test.nominal_rate = 4000;
   test.acceleration = 128000;
-  test.stop_accelerating = 10;
-  test.start_decelerating = 90;
+  test.stop_accelerating = 20;
+  test.start_decelerating = 80;
 
   SYNC_CTRL = STANDARD_OUTPUT;
   CONTROL_DDR |= SYNC_BIT;

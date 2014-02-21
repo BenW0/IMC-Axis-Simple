@@ -97,19 +97,21 @@ void pit0_isr(void) {
     trigger_pulse();
   
   if(st.state == STATE_SYNC){ // Done with a block, and done with outputting the last pulse
-    // Disable this timer, and configure it to execute as soon as possible
+    // Disable this timer, and configure it to execute as soon as possible when
+    // it is restarted.
     PIT_TCTRL0 &= ~TEN;
-    PIT_TFLG0 = 1;
-    PIT_LDVAL0 = 100; // Can this be 0?
+    PIT_LDVAL0 = 0;
     //Next time this ISR is triggered, we've gone through the sync sequence, and can just start executing
     st.state = STATE_EXECUTE; 
-    // Configure the sync line as high-z input with an interrupt on rising edge
+    // Configure the sync line as high-z input with an interrupt on logic one. I've had issues
+    // with triggering on the edge...
     CONTROL_DDR &= ~SYNC_BIT;
     SYNC_CTRL = MUX_GPIO | IRQC_ONE;
     // Start counting down on timer 2
-    //  PIT_LDVAL2 = SYNC_TIMEOUT;
-    //PIT_TCTRL2 |= TEN;
-    // Allow this to retrigger
+    PIT_LDVAL2 = SYNC_TIMEOUT;
+    PIT_TCTRL2 |= TEN;
+    // Allow this to retrigger next time
+    PIT_TFLG0 = 1;
     return;
   }
 
@@ -117,7 +119,7 @@ void pit0_isr(void) {
   if (current_block == NULL){
     // Anything in the buffer? If so, initialize next motion.
     current_block = dequeue_block();
-    if (current_block != NULL) {
+    if (current_block != NULL){
       if (st.state == STATE_EXECUTE) {
         // During feed hold, do not update rate and trap counter. Keep decelerating.
         st.trapezoid_adjusted_rate = current_block->initial_rate;
@@ -131,6 +133,7 @@ void pit0_isr(void) {
     } else {
       // We have no more moves in the queue, so go idle but keep steppers enabled
       st.state = STATE_IDLE; 
+      PIT_TCTRL0 &= ~TEN;
     }    
   } 
 
