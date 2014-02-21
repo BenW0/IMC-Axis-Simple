@@ -1,6 +1,7 @@
 #include "hardware.h"
 #include "stepper.h"
 #include "queue.h"
+#include "sync.h"
 #include "protocol/message_structs.h"
 
 
@@ -24,6 +25,7 @@ int main(void){
   enqueue_block(&test);
   initialize_stepper();
   enable_stepper_int();
+  enable_sync_isr();
 
   while(1);
 }

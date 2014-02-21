@@ -31,6 +31,11 @@
 #define MAX_LIMIT_BIT  (1<<3)
 #define LIMIT_MASK (MAX_LIMIT_BIT | MIN_LIMIT_BIT)
 
+
+// Bits in the PIT register:
+#define TIE 2 // Timer interrupt enable
+#define TEN 1 // Timer enable
+
 // Set the data-direction, multiplexing, and pullup/down/high-z for a limit
 // pin. Also enables interrupts.
 // Intended to be passed IMC_PARAM_MAX_LIMIT_EN or IMC_PARAM_MIN_LIMIT_EN,

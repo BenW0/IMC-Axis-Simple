@@ -2,8 +2,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <pin_config.h>
 
 #include "protocol/message_structs.h"
+#include "sync.h"
 #include "queue.h"
 #include "hardware.h"
 #include "config.h"
@@ -13,9 +15,7 @@ static void set_step_events_per_minute(uint32_t);
 
 #define TICKS_PER_MICROSECOND (F_CPU/1000000)
 #define CYCLES_PER_ACCELERATION_TICK ((TICKS_PER_MICROSECOND*1000000)/ACCELERATION_TICKS_PER_SECOND)
-// Bits in the PIT register:
-#define TIE 2 // Timer interrupt enable
-#define TEN 1 // Timer enable
+
 enum pulse_status {PULSE_SET, PULSE_RESET};
 
 typedef struct {
@@ -27,7 +27,6 @@ static pulse_state pit1_state;
 
 static stepper_state_t st;
 static msg_queue_move_t* current_block;
-volatile uint32_t busy;
 
 volatile uint32_t out_step;
 volatile uint32_t out_dir;
@@ -50,7 +49,6 @@ void initialize_stepper(void){
   // Zero all parameters, and go into idle
   memset(&st, 0, sizeof(st));
   current_block = NULL;
-  busy = false;
   st.state =  STATE_IDLE;
 }
 // Enable power to steppers - deassert stepper disable pin
@@ -93,19 +91,32 @@ static void set_step_events_per_minute(uint32_t steps_per_minute)
 
 
 void pit0_isr(void) {
-  PIT_TFLG0 = 1;
-
-  if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
-  // Set the direction bits. Todo: only do this at the start of a block?
-
+  // Set the direction bits. Todo: only do this at the start of a block.
   STEPPER_PORT(DOR) = (STEPPER_PORT(DOR) & ~DIR_BIT) | (out_dir ? DIR_BIT : 0);
   if(out_step)
     trigger_pulse();
-
-  busy = true;
   
+  if(st.state == STATE_SYNC){ // Done with a block, and done with outputting the last pulse
+    // Disable this timer, and configure it to execute as soon as possible
+    PIT_TCTRL0 &= ~TEN;
+    PIT_TCTRL0 &= ~TIE;
+
+    PIT_LDVAL0 = 1; // Can this be 0?
+    //Next time this ISR is triggered, we've gone through the sync sequence, and can just start executing
+    st.state = STATE_EXECUTE; 
+    // Configure the sync line as high-z input with an interrupt on rising edge
+    CONTROL_DDR &= ~SYNC_BIT;
+    SYNC_CTRL = MUX_GPIO | IRQC_RISING;
+    // Start counting down on timer 2
+    PIT_LDVAL2 = SYNC_TIMEOUT;
+    PIT_TCTRL2 |= TEN;
+    // Allow this to retrigger
+    PIT_TFLG0 = 1;
+    return;
+  }
+
   // If there is no current block, attempt to pop one from the buffer
-  if (current_block == NULL) {
+  if (current_block == NULL){
     // Anything in the buffer? If so, initialize next motion.
     current_block = dequeue_block();
     if (current_block != NULL) {
@@ -204,7 +215,7 @@ void pit0_isr(void) {
 	  set_step_events_per_minute(st.trapezoid_adjusted_rate);
 	}
       }            
-    } else {   
+    } else {
       // If current block is finished, reset pointer, forcing
       // the next iteration to either pop a new block, or die
       // This is where we deal with our sync protocol:
@@ -212,10 +223,10 @@ void pit0_isr(void) {
       // 2) switch to sync state, disable the stepper interrupt, start a PIT counter, and enable an interrupt on sync line falling edge.
       // 3) When interrupt fires, immediately restart the stepper interrupt. Value of PIT is the sync error.
       current_block = NULL;
+      st.state = STATE_SYNC;
     }
   }
-  
-  busy = false;
+  PIT_TFLG0 = 1;
 }
 
 inline void trigger_pulse(void){
