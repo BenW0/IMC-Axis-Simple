@@ -17,14 +17,14 @@ void enable_sync_isr(void){
 void pit2_isr(void){
   PIT_TFLG2 = 1;
   // Stop the timer...
-  PIT_TCTRL0 &= ~TEN; 
+  PIT_TCTRL2 &= ~TEN; 
   if(PIT_LDVAL2 == SYNC_DELAY){
     // Configure this as output pulled low
-    SYNC_CTRL = MUX_GPIO;
+    SYNC_CTRL = STANDARD_OUTPUT;
     CONTROL_DDR |= SYNC_BIT;
     CONTROL_PORT(COR) = SYNC_BIT;
   }else{ // We've timed out and bad things are happening
     // For testing purposes, just keep executing
-    PIT_TCTRL0 |= TEN | TIE;
+    //   PIT_TCTRL0 |= TEN | TIE;
   }
 }

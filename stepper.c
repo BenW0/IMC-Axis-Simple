@@ -25,7 +25,7 @@ typedef struct {
 
 static pulse_state pit1_state;
 
-static stepper_state_t st;
+static volatile stepper_state_t st;
 static msg_queue_move_t* current_block;
 
 volatile uint32_t out_step;
@@ -99,19 +99,17 @@ void pit0_isr(void) {
   if(st.state == STATE_SYNC){ // Done with a block, and done with outputting the last pulse
     // Disable this timer, and configure it to execute as soon as possible
     PIT_TCTRL0 &= ~TEN;
-    PIT_TCTRL0 &= ~TIE;
-
-    PIT_LDVAL0 = 1; // Can this be 0?
+    PIT_TFLG0 = 1;
+    PIT_LDVAL0 = 100; // Can this be 0?
     //Next time this ISR is triggered, we've gone through the sync sequence, and can just start executing
     st.state = STATE_EXECUTE; 
     // Configure the sync line as high-z input with an interrupt on rising edge
     CONTROL_DDR &= ~SYNC_BIT;
-    SYNC_CTRL = MUX_GPIO | IRQC_RISING;
+    SYNC_CTRL = MUX_GPIO | IRQC_ONE;
     // Start counting down on timer 2
-    PIT_LDVAL2 = SYNC_TIMEOUT;
-    PIT_TCTRL2 |= TEN;
+    //  PIT_LDVAL2 = SYNC_TIMEOUT;
+    //PIT_TCTRL2 |= TEN;
     // Allow this to retrigger
-    PIT_TFLG0 = 1;
     return;
   }
 

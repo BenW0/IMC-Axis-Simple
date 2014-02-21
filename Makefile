@@ -34,7 +34,7 @@ CXX = $(COMPILER)/arm-none-eabi-g++
 OBJCOPY = $(COMPILER)/arm-none-eabi-objcopy
 SIZE = $(COMPILER)/arm-none-eabi-size
 
-OBJECTS    = hardware.o stepper.o queue.o sync.o test.o protocol/message_structs.o
+OBJECTS    = hardware.o stepper.o queue.o sync.o limits.o test.o protocol/message_structs.o
 
 VENDOR_C = $(wildcard $(VENDOR)/*.c)
 VENDOR_OBJECTS = $(patsubst %.c,%.o,$(VENDOR_C))
