@@ -54,7 +54,7 @@ typedef struct __attribute__((__packed__)){
   int32_t location;
   uint32_t sync_error;
   imc_axis_error status;
-  uint8_t queued_moves;
+  uint16_t queued_moves;
 } rsp_status_t;
 
 typedef struct __attribute__((__packed__)){
