@@ -6,18 +6,18 @@
 
 ////////////////////// Message Packet Structures /////////////////////////////////
 // All
-typedef struct __attribute__((__packed__)){
+typedef struct {
   uint16_t host_revision;
   uint8_t  reserved[6];
-} msg_initialize_t;
+} __attribute__ ((packed)) msg_initialize_t;
 
-//typedef struct __attribute__((__packed__)){
+//typedef struct {
 //  ;  // no fields in message
-//} msg_status_t;
+//} __attribute__ ((packed)) msg_status_t;
 
-//typedef struct __attribute__((__packed__)){
+//typedef struct {
 //  ;  // no fields in message
-//} msg_home_t;
+//} __attribute__ ((packed)) msg_home_t;
 
 typedef struct { // Assume we don't have to pad this on 32-bit systems
   int32_t length;
@@ -28,48 +28,48 @@ typedef struct { // Assume we don't have to pad this on 32-bit systems
   uint32_t acceleration;
   uint32_t stop_accelerating;
   uint32_t start_decelerating;
-} msg_queue_move_t;
+} __attribute__ ((packed)) msg_queue_move_t;
 
-typedef struct __attribute__((__packed__)){
+typedef struct {
   uint8_t param_id;
-} msg_get_param_t;
+} __attribute__ ((packed)) msg_get_param_t;
 
-typedef struct __attribute__((__packed__)){
+typedef struct {
   uint32_t param_value;
   uint8_t param_id;
-} msg_set_param_t;
+} __attribute__ ((packed)) msg_set_param_t;
 
 
 ///////////////////////// Response Packet Structures /////////////////////////////////
 // All response packets begin with a single byte response character, not included in the
 // structs below because it would mess with efficient packing on 32-bit microcontrollers.
 
-typedef struct __attribute__((__packed__)){
+typedef struct {
   uint16_t slave_hw_ver;
   uint16_t slave_fw_ver;
   uint16_t queue_depth;
-} rsp_initialize_t;
+} __attribute__ ((packed)) rsp_initialize_t;
 
-typedef struct __attribute__((__packed__)){
+typedef struct {
   int32_t location;
   uint32_t sync_error;
   uint16_t queued_moves;
   imc_axis_error status;
-} rsp_status_t;
+} __attribute__ ((packed)) rsp_status_t;
 
-typedef struct __attribute__((__packed__)){
+typedef struct {
   int32_t old_position;
-} rsp_home_t;
+} __attribute__ ((packed)) rsp_home_t;
 
 //typedef struct __attribute__ ((__packed__)){
-//} rsp_queue_move_t;
+//} __attribute__ ((packed)) rsp_queue_move_t;
 
-typedef struct __attribute__((__packed__)){
+typedef struct {
   uint32_t value;
-} rsp_get_param_t;
+} __attribute__ ((packed)) rsp_get_param_t;
 
-//typedef struct __attribute__((__packed__)){
-//} rsp_set_param_t;
+//typedef struct {
+//} __attribute__ ((packed)) rsp_set_param_t;
 
 
 extern const uint8_t imc_message_type_count;    // number of message types defined.

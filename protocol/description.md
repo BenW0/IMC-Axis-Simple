@@ -59,9 +59,7 @@ This message requests information from the slave’s operating state. Querying c
 
   * Message Response – {IMC_RSP_OK, IMC_RSP_UNKNOWN, IMC_RSP_ERROR} – 1 byte
   * Slave status – {IMC_STATUS_OK or error code} – 1 byte
-  * Actuator location (in steps) – int32
   * Queued moves – uint8
-  * Average sync error in microseconds – uint32. The average time elapsed between move completion (releasing Move Complete pin) and Move Complete pin going high.
 
 ###*Home Axis*
 
@@ -125,6 +123,19 @@ Sets a controller parameter on the slave. Assumes consistent byte order between 
 
   * Message Response = {IMC_RSP_OK, IMC_RSP_UNKNOWN, IMC_RSP_ERROR} – 1 byte
 
+###*Quickstop*
+
+Stops all motion on the slave and clears all buffered moves. This is for build cancel, idle timeout, and other non-critical stops that
+shouldn't result in further moves.
+
+####Message Content
+
+  * Message ID – IMC_MSG_SETPARAM – 1 byte
+
+### Response Content
+
+  * Message Response = {IMC_RSP_OK, IMC_RSP_UNKNOWN, IMC_RSP_ERROR} – 1 byte
+
 ##Slave Parameters
 
 More parameters will be added in future slave firmware revisions to support more interesting control architectures.
@@ -147,6 +158,8 @@ More parameters will be added in future slave firmware revisions to support more
 *  IMC_PARAM_MOTOR_ON – motor driver enabled. Read/write.
 *  IMC_PARAM_MOTOR_IDLE_TIMEOUT – time to wait before automatically disabling motors.
 *  IMC_PARAM_SLOWDOWN – engage “slowdown” mode so buffers can fill. Not set locally (only via host)
+*  IMC_PARAM_LOCATION - Gets/sets the current encoder location. Can be used to manually set location.
+*  IMC_PARAM_SYNC_ERROR - (read only) The average time elapsed between move completion (releasing Move Complete pin) and Move Complete pin going high.
 
 
 ## Slave Error Codes

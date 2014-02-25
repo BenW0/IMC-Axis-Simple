@@ -7,24 +7,26 @@ This file contains definitions for all constants in the specification of the IMC
 #define imc_protocol_constants_h
 
 // constants in this enum need to match indices into the imc_message_length[] and imc_resp_length[] arrays in message_structs.h
-typedef enum __attribute__ ((__packed__)) {
+typedef enum {
   IMC_MSG_INITIALIZE = 1,
   IMC_MSG_STATUS = 2,
   IMC_MSG_HOME = 3,
   IMC_MSG_QUEUEMOVE = 4,
   IMC_MSG_GETPARAM = 5,
   IMC_MSG_SETPARAM = 6,
-} imc_message_type;
+  IMC_MSG_QUICKSTOP = 7
+  // FUTURE: IMC_MSG_BABYSTEP
+} __attribute__ ((packed)) imc_message_type;
 
 
-typedef enum  __attribute__ ((__packed__)) {
+typedef enum  {
   IMC_RSP_OK,
   IMC_RSP_UNKNOWN,
   IMC_RSP_ERROR,
   IMC_RSP_QUEUEFULL
-} imc_response_type;
+} __attribute__ ((packed)) imc_response_type;
 
-typedef enum __attribute__ ((__packed__)) {
+typedef enum {
   IMC_PARAM_ERROR_INFO1,
   IMC_PARAM_ERROR_INFO2,
   IMC_PARAM_FLIP_AXIS,
@@ -43,21 +45,23 @@ typedef enum __attribute__ ((__packed__)) {
   IMC_PARAM_HOMING_FEEDRATE,
   IMC_PARAM_MOTOR_ON,
   IMC_PARAM_MOTOR_IDLE_TIMEOUT,
-  IMC_PARAM_SLOWDOWN
-} imc_axis_parameter;
+  IMC_PARAM_SLOWDOWN,
+  IMC_PARAM_LOCATION,
+  IMC_PARAM_SYNC_ERROR      		// read only
+} __attribute__ ((packed)) imc_axis_parameter;
 
-typedef enum __attribute__ ((__packed__)) {
+typedef enum {
   IMC_NO_PULL,
   IMC_PULLUP,
   IMC_PULLDOWN
-} imc_pullup_values;
+} __attribute__ ((packed)) imc_pullup_values;
 
-typedef enum __attribute__ ((__packed__)) {
+typedef enum {
   IMC_ERR_NONE,
   IMC_ERR_CONTROL,
   IMC_ERR_ELECTRICAL,
   IMC_ERR_MECHANICAL,
   IMC_ERR_TIMEOUT
-} imc_axis_error;
+} __attribute__ ((packed)) imc_axis_error;
 
 #endif
