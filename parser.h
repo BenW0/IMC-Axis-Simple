@@ -23,7 +23,7 @@ typedef struct {
 
 typedef union {
   rsp_initialize_t init;
-  rsp_status_t stat;
+  rsp_status_t status;
   rsp_home_t home;
   rsp_get_param_t param;
 } generic_response;

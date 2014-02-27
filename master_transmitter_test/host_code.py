@@ -171,4 +171,5 @@ def sendSetParam(serobj, param_id, value) :
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyACM0')
     sendInit(ser,0)
-    sendGetParam(ser,7)
+    for i in xrange(0,10):
+        sendQueueMove(ser,0,0,0,0,0,0,0,0)

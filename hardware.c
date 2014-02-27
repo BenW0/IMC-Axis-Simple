@@ -52,6 +52,7 @@ void reset_hardware(void){
   // Put stepper driver in a safe condition - todo: allow for inverting disable and step
   STEPPER_PORT(SOR) = DISABLE_BIT;
   STEPPER_PORT(COR) = STEP_BIT;
+
   // As much as I don't like leaving the pin floating, I have no idea what this should default to.
   configure_limit_gpio(0, IMC_PULLDOWN, parameters.homing);
   configure_limit_gpio(1, IMC_PULLDOWN, parameters.homing);
