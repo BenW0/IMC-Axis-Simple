@@ -81,8 +81,7 @@ void handle_get_parameter(msg_get_param_t* msg,rsp_get_param_t* rsp){
     rsp->value = parameters.motor_timeout;
     break;
   case IMC_PARAM_LOCATION:
-    // Consult the stepper driver state
-    ;
+    rsp->value = get_position();
     break;
   case IMC_PARAM_SLOWDOWN:
     rsp->value = parameters.slowdown;
@@ -130,6 +129,10 @@ void handle_set_parameter(msg_set_param_t* msg){
   case IMC_PARAM_MOTOR_ON:
     // Do some IO to turn the motor on or off
     parameters.motor_on = msg->param_value; 
+    break;
+  case IMC_PARAM_LOCATION:
+    // This may have a signed/unsigned issue. todo: figure that out
+    set_position(msg->param_value);
     break;
   default:
     break;

@@ -97,7 +97,7 @@ void pit0_isr(void) {
   if(out_step)
     trigger_pulse();
 
-  if(st.state == STATE_IDLE){
+  if(st.state == STATE_IDLE || st.state == STATE_ERROR){
     // Disable this interrupt
     PIT_TCTRL0 &= ~TEN;
     PIT_TFLG0 = 1;
@@ -141,66 +141,64 @@ void pit0_isr(void) {
     return;
   }
   
-  if (st.step_events_completed < current_block->total_length) {
-    // The trapezoid generator always checks step event location to ensure de/ac-celerations are 
-    // executed and terminated at exactly the right time. This helps prevent over/under-shooting
-    // the target position and speed. 
-    // NOTE: By increasing the ACCELERATION_TICKS_PER_SECOND in config.h, the resolution of the 
-    // discrete velocity changes increase and accuracy can increase as well to a point. Numerical 
-    // round-off errors can effect this, if set too high. This is important to note if a user has 
-    // very high acceleration and/or feedrate requirements for their machine.
-    if (st.step_events_completed < current_block->stop_accelerating) {
-      // Iterate cycle counter and check if speeds need to be increased.
-      if ( iterate_trapezoid_cycle_counter() ) {
-	st.trapezoid_adjusted_rate += current_block->acceleration;
-	if (st.trapezoid_adjusted_rate >= current_block->nominal_rate) {
-	  // Reached nominal rate a little early. Cruise at nominal rate until decelerate_after.
-	  st.trapezoid_adjusted_rate = current_block->nominal_rate;
-	}
-	set_step_events_per_minute(st.trapezoid_adjusted_rate);
+  // The trapezoid generator always checks step event location to ensure de/ac-celerations are 
+  // executed and terminated at exactly the right time. This helps prevent over/under-shooting
+  // the target position and speed. 
+  // NOTE: By increasing the ACCELERATION_TICKS_PER_SECOND in config.h, the resolution of the 
+  // discrete velocity changes increase and accuracy can increase as well to a point. Numerical 
+  // round-off errors can effect this, if set too high. This is important to note if a user has 
+  // very high acceleration and/or feedrate requirements for their machine.
+  if (st.step_events_completed < current_block->stop_accelerating) {
+    // Iterate cycle counter and check if speeds need to be increased.
+    if ( iterate_trapezoid_cycle_counter() ) {
+      st.trapezoid_adjusted_rate += current_block->acceleration;
+      if (st.trapezoid_adjusted_rate >= current_block->nominal_rate) {
+	// Reached nominal rate a little early. Cruise at nominal rate until decelerate_after.
+	st.trapezoid_adjusted_rate = current_block->nominal_rate;
       }
-    } else if (st.step_events_completed >= current_block->start_decelerating) {
-      // Reset trapezoid tick cycle counter to make sure that the deceleration is performed the
-      // same every time. Reset to CYCLES_PER_ACCELERATION_TICK/2 to follow the midpoint rule for
-      // an accurate approximation of the deceleration curve. For triangle profiles, down count
+      set_step_events_per_minute(st.trapezoid_adjusted_rate);
+    }
+  } else if (st.step_events_completed >= current_block->start_decelerating) {
+    // Reset trapezoid tick cycle counter to make sure that the deceleration is performed the
+    // same every time. Reset to CYCLES_PER_ACCELERATION_TICK/2 to follow the midpoint rule for
+    // an accurate approximation of the deceleration curve. For triangle profiles, down count
       // from current cycle counter to ensure exact deceleration curve.
-      if (st.step_events_completed == current_block->start_decelerating) {
-	if (st.trapezoid_adjusted_rate == current_block->nominal_rate) {
-	  st.trapezoid_tick_cycle_counter = CYCLES_PER_ACCELERATION_TICK/2; // Trapezoid profile
-	} else {  
-	  st.trapezoid_tick_cycle_counter = CYCLES_PER_ACCELERATION_TICK-st.trapezoid_tick_cycle_counter; // Triangle profile
-	}
-      } else {
-	// Iterate cycle counter and check if speeds need to be reduced.
-	if ( iterate_trapezoid_cycle_counter() ) {  
-	  // NOTE: We will only do a full speed reduction if the result is more than the minimum safe 
-	  // rate, initialized in trapezoid reset as 1.5 x rate_delta. Otherwise, reduce the speed by
-	  // half increments until finished. The half increments are guaranteed not to exceed the 
-	  // CNC acceleration limits, because they will never be greater than rate_delta. This catches
-	  // small errors that might leave steps hanging after the last trapezoid tick or a very slow
-	  // step rate at the end of a full stop deceleration in certain situations. The half rate 
-	  // reductions should only be called once or twice per block and create a nice smooth 
-	    // end deceleration.
-	  if (st.trapezoid_adjusted_rate > st.min_safe_rate) {
-	    st.trapezoid_adjusted_rate -= current_block->acceleration;
-	  } else {
-	    st.trapezoid_adjusted_rate >>= 1; // Bit shift divide by 2
-	  }
-	  if (st.trapezoid_adjusted_rate < current_block->final_rate) {
-	    // Reached final rate a little early. Cruise to end of block at final rate.
-	    st.trapezoid_adjusted_rate = current_block->final_rate;
-	  }
-	  set_step_events_per_minute(st.trapezoid_adjusted_rate);
-	}
+    if (st.step_events_completed == current_block->start_decelerating) {
+      if (st.trapezoid_adjusted_rate == current_block->nominal_rate) {
+	st.trapezoid_tick_cycle_counter = CYCLES_PER_ACCELERATION_TICK/2; // Trapezoid profile
+      } else {  
+	st.trapezoid_tick_cycle_counter = CYCLES_PER_ACCELERATION_TICK-st.trapezoid_tick_cycle_counter; // Triangle profile
       }
     } else {
-      // No accelerations. Make sure we cruise exactly at the nominal rate.
-      if (st.trapezoid_adjusted_rate != current_block->nominal_rate) {
-	st.trapezoid_adjusted_rate = current_block->nominal_rate;
-	set_step_events_per_minute(st.trapezoid_adjusted_rate);
+      // Iterate cycle counter and check if speeds need to be reduced.
+      if ( iterate_trapezoid_cycle_counter() ) {  
+	// NOTE: We will only do a full speed reduction if the result is more than the minimum safe 
+	// rate, initialized in trapezoid reset as 1.5 x rate_delta. Otherwise, reduce the speed by
+	// half increments until finished. The half increments are guaranteed not to exceed the 
+	// CNC acceleration limits, because they will never be greater than rate_delta. This catches
+	// small errors that might leave steps hanging after the last trapezoid tick or a very slow
+	// step rate at the end of a full stop deceleration in certain situations. The half rate 
+	// reductions should only be called once or twice per block and create a nice smooth 
+	// end deceleration.
+	if (st.trapezoid_adjusted_rate > st.min_safe_rate) {
+	  st.trapezoid_adjusted_rate -= current_block->acceleration;
+	} else {
+	  st.trapezoid_adjusted_rate >>= 1; // Bit shift divide by 2
+	}
+	if (st.trapezoid_adjusted_rate < current_block->final_rate) {
+	  // Reached final rate a little early. Cruise to end of block at final rate.
+	    st.trapezoid_adjusted_rate = current_block->final_rate;
+	}
+	  set_step_events_per_minute(st.trapezoid_adjusted_rate);
       }
-    }            
-  }
+    }
+  } else {
+    // No accelerations. Make sure we cruise exactly at the nominal rate.
+    if (st.trapezoid_adjusted_rate != current_block->nominal_rate) {
+      st.trapezoid_adjusted_rate = current_block->nominal_rate;
+      set_step_events_per_minute(st.trapezoid_adjusted_rate);
+    }
+  }            
   PIT_TFLG0 = 1;
 } 
 
@@ -260,4 +258,11 @@ void execute_move(void){
 void stop_motion(void){
   disable_stepper();
   PIT_TCTRL0 &= ~TEN;
+}
+
+int32_t get_position(void){
+  return st.position;
+}
+void set_position(uint32_t p){
+  st.position = p;
 }

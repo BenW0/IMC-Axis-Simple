@@ -21,11 +21,13 @@ int enqueue_block(msg_queue_move_t* src){
 }
 
 msg_queue_move_t* dequeue_block(void){
+  msg_queue_move_t* ret;
   if(queue_size == 0)
     return NULL;
   queue_size--;
+  ret = &(motion_queue[queue_head]);
   queue_head = (queue_head + 1) & MOTION_QUEUE_MASK;
-  return &(motion_queue[queue_head]);
+  return ret;
 }
 
 uint32_t queue_length(void){

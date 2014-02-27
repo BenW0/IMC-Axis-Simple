@@ -47,7 +47,7 @@ void enable_stepper(void);
 void disable_stepper(void);
 // Getters and setters for current position - used for homing and reporting positions
 int32_t get_position(void);
-void set_position(int32_t);
+void set_position(uint32_t);
 // Trigger a pulse on the step pin
 void trigger_pulse(void);
 #endif
