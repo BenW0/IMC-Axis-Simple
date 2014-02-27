@@ -72,9 +72,9 @@ typedef struct {
 //} __attribute__ ((packed)) rsp_set_param_t;
 
 
-extern const uint8_t imc_message_type_count;    // number of message types defined.
-extern const uint8_t imc_message_length[7]; 
-extern const uint8_t imc_resp_length[7];
+#define IMC_MESSAGE_TYPE_COUNT 7
+extern const uint8_t imc_message_length[IMC_MESSAGE_TYPE_COUNT + 1]; 
+extern const uint8_t imc_resp_length[IMC_MESSAGE_TYPE_COUNT + 1];
 
 #endif
 
