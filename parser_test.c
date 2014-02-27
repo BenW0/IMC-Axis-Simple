@@ -5,8 +5,6 @@
 #include "parameters.h"
 #include <usb_serial.h>
 
-rsp_get_param_t resp;
-
 int main(void){
   initialize_parser();
   reset_parameters();
@@ -17,18 +15,14 @@ int main(void){
       feed_data(&c,1);
     }
     if(parser.status == PARSER_NEW_EVENT){
-      uint8_t* v = (uint8_t*) &resp;
-      int i;
       switch(parser.packet_type){
       case IMC_MSG_GETPARAM:
-	handle_get_parameter(&parser.packet.get_param, &resp);
-	usb_serial_putchar(IMC_RSP_OK);
-	for(i = 0; i < sizeof(resp); i++)
-	  usb_serial_putchar(v[i]);
+	handle_get_parameter(&parser.packet.get_param, &response.param);
+	send_response(IMC_RSP_OK,sizeof(rsp_get_param_t));
 	break;
       case IMC_MSG_SETPARAM:
 	handle_set_parameter(&parser.packet.set_param);
-	usb_serial_putchar(IMC_RSP_OK);
+	send_response(IMC_RSP_OK,0);
 	break;
       default:;
       }

@@ -1,8 +1,10 @@
 #include "protocol/message_structs.h"
 #include "protocol/constants.h"
 #include "parser.h"
+#include <usb_serial.h>
 
 volatile parser_state_t parser;
+generic_response response;
 
 void initialize_parser(void){
   parser.status = PARSER_EMPTY;
@@ -37,4 +39,11 @@ uint32_t feed_data(const uint8_t* input, uint32_t length){
   if(parser.remaining == 0)
     parser.status = PARSER_NEW_EVENT;
   return consumed;
+}
+
+void send_response(imc_response_type status,uint32_t size){
+  // At the moment, we're just going through usb serial. In reality, we should
+  // write this to the i2c interface
+  usb_serial_putchar(status);
+  usb_serial_write(&response, size);
 }

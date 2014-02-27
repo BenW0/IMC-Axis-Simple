@@ -21,8 +21,19 @@ typedef struct {
   } packet;
 } parser_state_t;
 
+typedef union {
+  rsp_initialize_t init;
+  rsp_status_t stat;
+  rsp_home_t home;
+  rsp_get_param_t param;
+} generic_response;
+
+extern volatile parser_state_t parser;
+
 void initialize_parser(void);
 uint32_t feed_data(const uint8_t*, uint32_t);
 
-extern volatile parser_state_t parser;
+extern generic_response response;
+// Response type, and number of bytes of response to write
+void send_response(imc_response_type,uint32_t);
 #endif
