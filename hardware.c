@@ -28,7 +28,7 @@ void configure_limit_gpio(uint32_t axis, imc_pullup_values value, uint32_t homin
   if(value == PRESERVE_PULLUP){
     config |= (axis ? MAX_LIMIT_CTRL : MIN_LIMIT_CTRL) & ( PULL_DOWN | PULL_UP); 
   }else if(value != IMC_NO_PULL){
-    config |= value == IMC_PULLDOWN ? PULL_DOWN : PULL_UP;
+    config |= (value == IMC_PULLDOWN) ? PULL_DOWN : PULL_UP;
   }
   
   if(axis){
@@ -53,6 +53,6 @@ void reset_hardware(void){
   STEPPER_PORT(SOR) = DISABLE_BIT;
   STEPPER_PORT(COR) = STEP_BIT;
   // As much as I don't like leaving the pin floating, I have no idea what this should default to.
-  configure_limit_gpio(0, IMC_NO_PULL, parameters.homing);
-  configure_limit_gpio(1, IMC_NO_PULL, parameters.homing);
+  configure_limit_gpio(0, IMC_PULLDOWN, parameters.homing);
+  configure_limit_gpio(1, IMC_PULLDOWN, parameters.homing);
 }
