@@ -140,9 +140,9 @@ def sendHome(serobj) :
 #   stop_accel - time to stop accelerating
 #   start_decel - time to start decelerating
 #  * see specification document for more details.
-def sendQueueMove(serobj, length, total_length, init_rate, fin_rate, accel, stop_accel, start_decel) :
+def sendQueueMove(serobj, length, total_length, init_rate, nom_rate, fin_rate, accel, stop_accel, start_decel) :
     # Pack the QueueMove message
-    pack = struct.pack("=BiIIIIII", IMC_MSG_QUEUEMOVE, length, total_length, init_rate, fin_rate, accel, stop_accel, start_decel)
+    pack = struct.pack("=BiIIIIIII", IMC_MSG_QUEUEMOVE, length, total_length, nom_rate, init_rate, fin_rate, accel, stop_accel, start_decel)
     resp = sendPacket(serobj, pack, "=B")
     print "Response:", resp[0]
 
@@ -167,3 +167,8 @@ def sendSetParam(serobj, param_id, value) :
     pack = struct.pack("=BIB", IMC_MSG_SETPARAM, value, param_id)
     resp = sendPacket(serobj, pack, "=B")
     print "Response:", resp[0]
+
+if __name__ == "__main__":
+    ser = serial.Serial('/dev/ttyACM0')
+    sendInit(ser,0)
+    sendGetParam(ser,7)

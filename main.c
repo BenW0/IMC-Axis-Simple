@@ -36,11 +36,11 @@ int main(void){
 	send_response(IMC_RSP_OK,sizeof(rsp_initialize_t));
 	break;
       case IMC_MSG_GETPARAM:
-	// 	handle_get_parameter(&parser.packet.get_param, &response.param);
+	handle_get_parameter(&parser.packet.get_param, &response.param);
 	send_response(IMC_RSP_OK,sizeof(rsp_get_param_t));
 	break;
       case IMC_MSG_SETPARAM:
-	//	handle_set_parameter(&parser.packet.set_param);
+	handle_set_parameter(&parser.packet.set_param);
 	send_response(IMC_RSP_OK,0);
 	break;	
       case IMC_MSG_QUEUEMOVE:
