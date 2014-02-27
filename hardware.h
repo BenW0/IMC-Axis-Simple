@@ -36,11 +36,8 @@
 #define TIE 2 // Timer interrupt enable
 #define TEN 1 // Timer enable
 
+void reset_hardware(void);
 // Set the data-direction, multiplexing, and pullup/down/high-z for a limit
 // pin. Also enables interrupts.
-// Intended to be passed IMC_PARAM_MAX_LIMIT_EN or IMC_PARAM_MIN_LIMIT_EN,
-// and the value of IMC_PARAM_*_LIMIT_INV, and IMC_PARAM_*_LIMIT_PULLUP.
-void configure_limit_gpio(imc_axis_parameter, uint32_t, uint32_t);
-// Much less interesting - configure them as standard output pins.
-void configure_stepper_gpio(void);
+void configure_limit_gpio(uint32_t, imc_pullup_values, uint32_t);
 #endif

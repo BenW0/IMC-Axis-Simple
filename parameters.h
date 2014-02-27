@@ -14,6 +14,8 @@
 #define INVERT_MIN (1<<6)
 #define INVERT_MAX (1<<7)
 
+#define PRESERVE_PULLUP (IMC_PULLUP + IMC_PULLDOWN)
+
 typedef struct {
   uint32_t error_low;
   uint32_t error_high;

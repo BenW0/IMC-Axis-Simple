@@ -1,12 +1,11 @@
 #include "parser.h"
 #include "queue.h"
 #include "parameters.h"
+#include "hardware.h"
 #include "protocol/constants.h"
 #include "protocol/message_structs.h"
 
 #include <usb_serial.h>
-
-void reset_hardware(void){;}
 
 void reset_state(void){
   initialize_motion_queue();
@@ -16,8 +15,8 @@ void reset_state(void){
 
 int main(void){
   // Configure all of the hardware and internal state
-  reset_hardware();
   reset_state();
+  reset_hardware();
   while(1){
     // In reality, we'll be feeding this from i2c, probably in an interrupt
     if(usb_serial_available()){
@@ -27,7 +26,6 @@ int main(void){
     if(parser.status == PARSER_NEW_EVENT){
       switch(parser.packet_type){
       case IMC_MSG_INITIALIZE:
-	reset_hardware();
 	reset_state();
 	send_response(IMC_RSP_OK,0);
 	break;

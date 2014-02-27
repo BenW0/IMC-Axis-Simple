@@ -1,4 +1,5 @@
 #include "parameters.h"
+#include "hardware.h"
 #include "protocol/constants.h"
 #include "protocol/message_structs.h"
 
@@ -98,17 +99,21 @@ void handle_set_parameter(msg_set_param_t* msg){
   // Can't set error info or sync_error
   // Pullups and motor on/off are special, as we actually have to do io
   uint32_t mask;
+  uint32_t axis = 0;
   switch(msg->param_id){
+  case IMC_PARAM_MAX_LIMIT_INV:
+  case IMC_PARAM_MAX_LIMIT_EN:
+    axis = 1;
+  case IMC_PARAM_MIN_LIMIT_EN:
+  case IMC_PARAM_MIN_LIMIT_INV:
   case IMC_PARAM_FLIP_AXIS:
   case IMC_PARAM_HOME_DIR:
   case IMC_PARAM_MIN_SOFTWARE_ENDSTOPS:
   case IMC_PARAM_MAX_SOFTWARE_ENDSTOPS:
-  case IMC_PARAM_MIN_LIMIT_EN:
-  case IMC_PARAM_MAX_LIMIT_EN:
-  case IMC_PARAM_MIN_LIMIT_INV:
-  case IMC_PARAM_MAX_LIMIT_INV:
     mask = const_to_mask(msg->param_id);
     parameters.homing = ((~mask) & parameters.homing) | (msg->param_value ? mask : 0);
+    // This is called a few extra times, but should be idempotent
+    configure_limit_gpio(axis, PRESERVE_PULLUP, parameters.homing);
     break;
   case IMC_PARAM_MIN_POS: parameters.min_pos = msg->param_value; break;
   case IMC_PARAM_MAX_POS: parameters.max_pos = msg->param_value; break;
@@ -117,10 +122,10 @@ void handle_set_parameter(msg_set_param_t* msg){
   case IMC_PARAM_MOTOR_IDLE_TIMEOUT: parameters.motor_timeout = msg->param_value; break;
   case IMC_PARAM_SLOWDOWN: parameters.slowdown = msg->param_value; break;
   case IMC_PARAM_MIN_LIMIT_PULLUP:
-    // Do some IO to set the pullup value directly
+    configure_limit_gpio(0, msg->param_value, parameters.homing);
     break;
   case IMC_PARAM_MAX_LIMIT_PULLUP:
-    // Do some IO to set the pullup value directly
+    configure_limit_gpio(1, msg->param_value, parameters.homing);
     break;
   case IMC_PARAM_MOTOR_ON:
     // Do some IO to turn the motor on or off

@@ -53,7 +53,7 @@ typedef enum {
 typedef enum {
   IMC_NO_PULL,
   IMC_PULLUP,
-  IMC_PULLDOWN
+  IMC_PULLDOWN,
 } __attribute__ ((packed)) imc_pullup_values;
 
 typedef enum {
