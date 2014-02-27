@@ -17,20 +17,29 @@
 
 // All input is placed on port b
 // Pin 16 is the global sync line
-// Pin 17 is the axis minimum limit switch
-// Pin 18 is the axis maximum limit switch
+// Pin 0 is the axis minimum limit switch
+// Pin 1 is the axis maximum limit switch
 #define CONTROL_PORT(reg) GPIOB_P##reg
 #define CONTROL_DDR       GPIOB_PDDR
 
 #define SYNC_CTRL PORTB_PCR0
 #define SYNC_BIT  1
 
-#define MIN_LIMIT_CTRL PORTB_PCR1
-#define MIN_LIMIT_BIT  2
-#define MAX_LIMIT_CTRL PORTB_PCR3
-#define MAX_LIMIT_BIT  (1<<3)
+#define MIN_LIMIT_CTRL PORTB_PCR16
+#define MIN_LIMIT_BIT  (1<<16)
+#define MAX_LIMIT_CTRL PORTB_PCR17
+#define MAX_LIMIT_BIT  (1<<17)
 #define LIMIT_MASK (MAX_LIMIT_BIT | MIN_LIMIT_BIT)
 
+
+#define I2C_PORT(reg) GPIOB_P##reg
+#define I2C_DDR       GPIOB_PDDR
+
+#define SDA_CTRL PORTB_PCR3
+#define SDA_BIT  (1<<3)
+
+#define SCL_CTRL PORTB_PCR2
+#define SCL_BIT  (1<<2)
 
 // Bits in the PIT register:
 #define TIE 2 // Timer interrupt enable
