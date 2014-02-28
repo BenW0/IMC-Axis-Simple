@@ -12,7 +12,6 @@ void portb_isr(void){
     if (!(I2C0_S & I2C_S_BUSY)){
       SDA_CTRL = (~IRQC_MASK & SDA_CTRL) | IRQC_NONE;
       // We're done right here
-      STEPPER_PORT(TOR) = STEP_BIT;
     } else {
       if (++irqcount >= 2) {
 	SDA_CTRL = (~IRQC_MASK & SDA_CTRL) | IRQC_NONE;

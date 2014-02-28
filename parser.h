@@ -31,7 +31,7 @@ typedef union {
 extern volatile parser_state_t parser;
 
 void initialize_parser(void);
-uint32_t feed_data(const uint8_t*, uint32_t);
+void feed_data(uint8_t);
 
 extern generic_response response;
 // Response type, and number of bytes of response to write

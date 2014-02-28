@@ -1,5 +1,6 @@
 #include "hardware.h"
 #include "i2c_slave.h"
+#include "parser.h"
 #include <pin_config.h>
 #include <mk20dx128.h>
 
@@ -112,9 +113,8 @@ void i2c0_isr(void)
     //digitalWriteFast(4, HIGH);
     data = I2C0_D;
     //serial_phex(data);
-    if (rxBufferLength < BUFFER_LENGTH && receiving) {
-      rxBuffer[rxBufferLength++] = data;
-    }
+    if(receiving)
+      feed_data(data);
     //digitalWriteFast(4, LOW);
   }
 }

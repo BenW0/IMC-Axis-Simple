@@ -20,21 +20,18 @@ void reset_state(void){
 }
 
 int main(void){
-  initialize_i2c(10<<1);
+  initialize_i2c(2);
   // Configure all of the hardware and internal state
   reset_state();
   reset_hardware();
   while(1){
-    // In reality, we'll be feeding this from i2c, probably in an interrupt
-    if(usb_serial_available()){
-      uint8_t c = usb_serial_getchar();
-      feed_data(&c,1);
-    }
     if(parser.status == PARSER_NEW_EVENT){
       switch(parser.packet_type){
       case IMC_MSG_INITIALIZE:
 	reset_state();
 	enable_sync_interrupt();
+	STEPPER_PORT(SOR) = STEP_BIT;
+
  	response.init.slave_hw_ver = 0;
 	response.init.slave_fw_ver = 0;
 	response.init.queue_depth = MOTION_QUEUE_LENGTH;

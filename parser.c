@@ -3,6 +3,9 @@
 #include "parser.h"
 #include <usb_serial.h>
 
+#include "hardware.h"
+#include <mk20dx128.h>
+
 volatile parser_state_t parser;
 generic_response response;
 
@@ -12,33 +15,30 @@ void initialize_parser(void){
   parser.head = (uint8_t*) &parser.packet;
 }
 
-uint32_t feed_data(const uint8_t* input, uint32_t length){ 
-  uint32_t consumed = 0;
-  if(parser.status == PARSER_NEW_EVENT)
-    return consumed;
-  
+void feed_data(uint8_t input){
+  if(parser.status == PARSER_NEW_EVENT){
+    // Haven't dealt with the event soon enough, and we have no queue,
+    // so this is an error. I2C shouldn't be prone to this, however
+    parser.status = PARSER_ERR; 
+    return;
+  }
   if(0 == parser.packet_type){
-    imc_message_type type = (imc_message_type) input[0];
-    consumed++;
-    
-    if(type < IMC_MSG_INITIALIZE || IMC_MSG_QUICKSTOP < type){ // First and last members of  imc_message_type
+    imc_message_type type = (imc_message_type) input;
+    if(type < IMC_MSG_INITIALIZE || IMC_MSG_QUICKSTOP < type){ // First and last members of imc_message_type
       parser.status = PARSER_ERR;
-      return consumed;
+      return;
     }
-    // Otherwise, we have a valid message type. Figure out how long it should be.
     parser.packet_type = type;
     parser.remaining = imc_message_length[type];
     parser.head = (uint8_t*) &parser.packet;
   }
-  // Now start consuming bytes until we either run out or have a complete packet
-  while(consumed < length && parser.remaining > 0){
-    *parser.head++ = input[consumed++];
-    parser.remaining--;
+  
+  if(parser.remaining-- > 0){
+    *parser.head++ = input;
   }
   // If we've finished an entire packet, signal that
   if(parser.remaining == 0)
     parser.status = PARSER_NEW_EVENT;
-  return consumed;
 }
 
 void send_response(imc_response_type status,uint32_t size){
