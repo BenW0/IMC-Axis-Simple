@@ -38,15 +38,18 @@ void loop() {
       // read the rest of the message
       uint8_t gotbytes = (uint8_t)Serial.readBytes((char*)data + 1, imc_message_length[header]);
       if( gotbytes >= imc_message_length[header] ){
-        digitalWrite(13,HIGH);
-        delay(100);
-        digitalWrite(13,LOW);
+        //digitalWrite(13,HIGH);
+        //delay(100);
+        //digitalWrite(13,LOW);
+        Serial.println("Packet:");
+        for(i = 0; i < imc_message_length[header] + 1; i++)
+          Serial.println(data[i]);
         
         // forward the message to the slave
         Wire.beginTransmission(SLAVE_ADDR);
         Wire.write(data, imc_message_length[header] + 1);
         Wire.endTransmission(true);
-	delay(100);
+	//delay(100);
 	// read back the response - we will need imc_resp_length[header] + 1 because of the added response byte.
         Wire.requestFrom((uint8_t)SLAVE_ADDR, (uint8_t)(imc_resp_length[header] + 1));
         

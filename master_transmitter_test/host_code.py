@@ -68,7 +68,8 @@ def sendPacket(serobj, pack, resp_fmt) :
     check = 0
     for x in pack:
         check = check ^ ord(x)
-    
+
+    print check
     serobj.write(pack + chr(check))
 
     
@@ -107,11 +108,12 @@ def sendPacket(serobj, pack, resp_fmt) :
 def sendInit(serobj, fwver = 0, reserved = (0,0)) :
     # Pack the Init message
     pack = struct.pack("=BHLH", IMC_MSG_INITIALIZE, fwver, reserved[0], reserved[1])
-    resp = sendPacket(serobj, pack, "=BHHH")
+    resp = sendPacket(serobj, pack, "=BHHHB")
     print "Response:", resp[0]
     print "Slave hw rev:", resp[1]
     print "Slave fw rev:", resp[2]
     print "Slave queue depth:", resp[3]
+    print "Checksum:", resp[4]
             
 
 
@@ -122,13 +124,14 @@ def sendStatus(serobj) :
     pack = struct.pack("=B", IMC_MSG_STATUS)
 
 
-    resp = sendPacket(serobj, pack, "=BiIhB")
+    resp = sendPacket(serobj, pack, "=BiIhBB")
 
     print "Response:", resp[0]
     print "Location:", resp[1]
     print "Sync Error:", resp[2]
     print "Status:", resp[4]
     print "Queued Moves:", resp[3]
+    print "Checksum:", resp[5]
     return resp[3]
 
 
@@ -137,9 +140,10 @@ def sendStatus(serobj) :
 def sendHome(serobj) :
     # Pack the Home message
     pack = struct.pack("=B", IMC_MSG_HOME)
-    resp = sendPacket(serobj, pack, "=Bi")
+    resp = sendPacket(serobj, pack, "=BiB")
     print "Response:", resp[0]
     print "Old Position:", resp[1]
+    print "Checksum:", resp[2]
 
 # sendQueueMove - send the Queue Move message
 # Params: serobj - serial object to Master
@@ -154,8 +158,9 @@ def sendHome(serobj) :
 def sendQueueMove(serobj, length, total_length, init_rate, nom_rate, fin_rate, accel, stop_accel, start_decel) :
     # Pack the QueueMove message
     pack = struct.pack("=BiIIIIIII", IMC_MSG_QUEUEMOVE, length, total_length, nom_rate, init_rate, fin_rate, accel, stop_accel, start_decel)
-    resp = sendPacket(serobj, pack, "=B")
+    resp = sendPacket(serobj, pack, "=BB")
     print "Response:", resp[0]
+    print "Checksum:", resp[1]
 
 
 # sendGetParam - send the Get Parameter message
@@ -164,9 +169,10 @@ def sendQueueMove(serobj, length, total_length, init_rate, nom_rate, fin_rate, a
 def sendGetParam(serobj, param_id) :
     # Pack the ParamID message
     pack = struct.pack("=BB", IMC_MSG_GETPARAM, param_id)
-    resp = sendPacket(serobj, pack, "=BI")
+    resp = sendPacket(serobj, pack, "=BIB")
     print "Response:", resp[0]
     print "Param Value:", resp[1]
+    print "Checksum:", resp[2]
 
 
 # sendSetParam - send the Set Parameter message
@@ -176,8 +182,9 @@ def sendGetParam(serobj, param_id) :
 def sendSetParam(serobj, param_id, value) :
     # Pack the Home message
     pack = struct.pack("=BIB", IMC_MSG_SETPARAM, value, param_id)
-    resp = sendPacket(serobj, pack, "=B")
+    resp = sendPacket(serobj, pack, "=BB")
     print "Response:", resp[0]
+    print "Checksum:", resp[1]
 
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyACM0')
