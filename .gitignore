@@ -14,3 +14,10 @@
 
 # Compiled Python
 *.pyc
+
+*.o
+*~
+\#*\#
+*.d
+*.hex
+*.elf
