@@ -113,12 +113,16 @@ def sendInit(serobj, fwver = 0, reserved = (0,0)) :
 def sendStatus(serobj) :
     # Pack the Status message
     pack = struct.pack("=B", IMC_MSG_STATUS)
-    resp = sendPacket(serobj, pack, "=BiIBB")
+
+
+    resp = sendPacket(serobj, pack, "=BiIhB")
+
     print "Response:", resp[0]
     print "Location:", resp[1]
     print "Sync Error:", resp[2]
-    print "Status:", resp[3]
-    print "Queued Moves:", resp[4]
+    print "Status:", resp[4]
+    print "Queued Moves:", resp[3]
+    return resp[3]
 
 
 # sendHome - send the Home message
@@ -171,5 +175,9 @@ def sendSetParam(serobj, param_id, value) :
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyACM0')
     sendInit(ser,0)
-    for i in xrange(0,10):
-        sendQueueMove(ser,0,0,0,0,0,0,0,0)
+    for i in xrange(0,5):
+        sendQueueMove(ser,100,100,800,800,400,128000,20,80)
+    while True:
+        time.sleep(0.1)
+        if sendStatus(ser) < 5:  
+            sendQueueMove(ser,100,100,800,800,400,128000,20,80)

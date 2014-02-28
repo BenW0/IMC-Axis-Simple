@@ -31,7 +31,6 @@
 #define MAX_LIMIT_BIT  (1<<17)
 #define LIMIT_MASK (MAX_LIMIT_BIT | MIN_LIMIT_BIT)
 
-
 #define I2C_PORT(reg) GPIOB_P##reg
 #define I2C_DDR       GPIOB_PDDR
 

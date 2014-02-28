@@ -6,9 +6,12 @@
 #include "hardware.h"
 #include "parameters.h"
 #include "stepper.h"
+#include "control_isr.h"
+#include "i2c_slave.h"
 #include <usb_serial.h>
 #include <mk20dx128.h>
 #include <pin_config.h>
+
 void reset_state(void){
   initialize_motion_queue();
   initialize_parser();
@@ -17,10 +20,10 @@ void reset_state(void){
 }
 
 int main(void){
+  initialize_i2c(10<<1);
   // Configure all of the hardware and internal state
   reset_state();
   reset_hardware();
-  
   while(1){
     // In reality, we'll be feeding this from i2c, probably in an interrupt
     if(usb_serial_available()){
@@ -31,8 +34,8 @@ int main(void){
       switch(parser.packet_type){
       case IMC_MSG_INITIALIZE:
 	reset_state();
-	// Also, reset sync line
-	response.init.slave_hw_ver = 0;
+	enable_sync_interrupt();
+ 	response.init.slave_hw_ver = 0;
 	response.init.slave_fw_ver = 0;
 	response.init.queue_depth = MOTION_QUEUE_LENGTH;
 	send_response(IMC_RSP_OK,sizeof(rsp_initialize_t));
@@ -47,20 +50,34 @@ int main(void){
 	break;	
       case IMC_MSG_QUEUEMOVE:
 	{
-	  int space = enqueue_block(&parser.packet.move);
+	  msg_queue_move_t test;
+	  int space;
+	  test.length = 100;
+	  test.total_length = 100;
+	  test.initial_rate = 100;
+	  test.final_rate = 100;
+	  test.nominal_rate = 4000;
+	  test.acceleration = 128000;
+	  test.stop_accelerating = 20;
+	  test.start_decelerating = 80;
+
+	  space = enqueue_block(&test);
+
 	  send_response(space < 0 ? IMC_RSP_QUEUEFULL : IMC_RSP_OK,0);
 	  // If we're adding moves in idle state, make sure that the sync interface is listening
-	  if(st.state == STATE_IDLE){
-	    CONTROL_DDR &= ~SYNC_BIT;
-	    SYNC_CTRL = MUX_GPIO | IRQC_ONE;
-	  }
+	  if(st.state == STATE_IDLE)
+	    enable_sync_interrupt();
 	}
 	break;
       case IMC_MSG_STATUS:
-	response.status.location = 0; // Grab this from stepper state
+	response.status.location = get_position();
 	response.status.sync_error = parameters.sync_error;
 	response.status.queued_moves = queue_length();
-	response.status.status = IMC_ERR_NONE; // This is, of course, a lie
+	if(st.state == STATE_ERROR){
+	  response.status.status = parameters.error_low;
+	}else{
+	  response.status.status = IMC_ERR_NONE;
+	}
 	send_response(IMC_RSP_OK,sizeof(rsp_status_t));
 	break;
       case IMC_MSG_HOME:
