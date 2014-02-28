@@ -65,9 +65,16 @@ IMC_ERR_TIMEOUT = 4
 def sendPacket(serobj, pack, resp_fmt) :
     
     # send the init message
-    serobj.write(pack)
+    check = 0
+    for x in pack:
+        check = check ^ ord(x)
+    
+    serobj.write(pack + chr(check))
+
+    
+
     # wait a second...
-    time.sleep(0.2)
+    time.sleep(1)
     # Read back the result
     err = ''
     resp = ''
@@ -175,9 +182,12 @@ def sendSetParam(serobj, param_id, value) :
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyACM0')
     sendInit(ser,0)
-    for i in xrange(0,5):
-        sendQueueMove(ser,100,100,800,800,400,128000,20,80)
-    while True:
-        time.sleep(0.1)
-        if sendStatus(ser) < 5:  
-            sendQueueMove(ser,100,100,800,800,400,128000,20,80)
+    sendStatus(ser)
+    sendStatus(ser) 
+    
+    #for i in xrange(0,5):
+     #   sendQueueMove(ser,100,100,800,800,400,128000,20,80)
+   # while True:
+    #    time.sleep(0.1)
+     #   if sendStatus(ser) < 5:  
+      #      sendQueueMove(ser,100,100,800,800,400,128000,20,80)

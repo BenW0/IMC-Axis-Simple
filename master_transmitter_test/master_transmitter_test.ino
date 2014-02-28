@@ -46,11 +46,12 @@ void loop() {
         Wire.beginTransmission(SLAVE_ADDR);
         Wire.write(data, imc_message_length[header] + 1);
         Wire.endTransmission(true);
+	delay(100);
 	// read back the response - we will need imc_resp_length[header] + 1 because of the added response byte.
         Wire.requestFrom((uint8_t)SLAVE_ADDR, (uint8_t)(imc_resp_length[header] + 1));
         
-        for( i = 0; i <= imc_resp_length[header] && Wire.available(); i++ )
-          data[i] = Serial.write(Wire.read());
+        for( i = 0; i <= imc_resp_length[header] && Wire.available();)
+          Serial.write(Wire.read());
       }
     }else{
       Serial.print("Invalid header: ");
