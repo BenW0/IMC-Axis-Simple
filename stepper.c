@@ -5,7 +5,7 @@
 #include <pin_config.h>
 
 #include "protocol/message_structs.h"
-#include "sync.h"
+#include "control_isr.h"
 #include "queue.h"
 #include "hardware.h"
 #include "config.h"
