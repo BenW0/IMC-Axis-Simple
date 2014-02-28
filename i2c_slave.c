@@ -9,8 +9,10 @@ void initialize_i2c(uint8_t addr){
   SCL_CTRL = PORT_PCR_MUX(2) | PORT_PCR_ODE | PORT_PCR_SRE | PORT_PCR_DSE;
 #if F_BUS == 48000000
   I2C0_F = 0x27;
+  I2C0_FLT = 4;
 #elif F_BUS == 24000000
   I2C0_F = 0x1F;  
+  I2C0_FLT = 2;
 #else
 #error "F_BUS must be 48 MHz or 24 MHz"
 #endif
@@ -24,22 +26,20 @@ void initialize_i2c(uint8_t addr){
 uint8_t rxBuffer[BUFFER_LENGTH];
 uint8_t txBuffer[BUFFER_LENGTH];
 
-volatile uint32_t rxBufferLength;
-volatile uint32_t txBufferLength;
-volatile uint32_t rxBufferIndex;
-volatile uint32_t txBufferIndex;
+static volatile uint32_t rxBufferLength;
+static volatile uint32_t txBufferLength;
+static volatile uint32_t rxBufferIndex;
+static volatile uint32_t txBufferIndex;
 volatile uint32_t irqcount;
-
 void on_request(void){;}
 
 void i2c0_isr(void)
 {
   uint8_t status, c1, data;
   static uint8_t receiving=0;
-  
-  I2C0_S = I2C_S_IICIF;
 
-  //  STEPPER_PORT(TOR) = STEP_BIT;
+
+  I2C0_S = I2C_S_IICIF;
 
   status = I2C0_S;
   //serial_print(".");
