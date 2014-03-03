@@ -19,7 +19,8 @@ typedef enum {
 } __attribute__ ((packed)) imc_message_type;
 
 
-typedef enum  {
+typedef enum   {
+  IMC_RSP_COMM_ERROR = 0, // 0 is special - since it's easy to get 0's by accident, they are defined as a special error.
   IMC_RSP_OK,
   IMC_RSP_UNKNOWN,
   IMC_RSP_ERROR,
