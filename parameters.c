@@ -1,5 +1,6 @@
 #include "parameters.h"
 #include "hardware.h"
+#include "stepper.h"
 #include "protocol/constants.h"
 #include "protocol/message_structs.h"
 
@@ -45,7 +46,7 @@ uint32_t const_to_mask(imc_axis_parameter c){
   }
 }
 
-void handle_get_parameter(msg_get_param_t* msg,rsp_get_param_t* rsp){
+void handle_get_parameter(volatile msg_get_param_t* msg,rsp_get_param_t* rsp){
   switch(msg->param_id){
   case IMC_PARAM_ERROR_INFO1:
     rsp->value = parameters.error_low;
@@ -98,7 +99,7 @@ void handle_get_parameter(msg_get_param_t* msg,rsp_get_param_t* rsp){
   }
 }
 
-void handle_set_parameter(msg_set_param_t* msg){
+void handle_set_parameter(volatile msg_set_param_t* msg){
   // Can't set error info or sync_error
   // Pullups and motor on/off are special, as we actually have to do io
   uint32_t mask;

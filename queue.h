@@ -8,7 +8,7 @@
 
 void initialize_motion_queue(void);
 
-int enqueue_block(msg_queue_move_t*);
+int enqueue_block(volatile msg_queue_move_t*);
 
 msg_queue_move_t*  dequeue_block(void);
 

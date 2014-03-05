@@ -2,9 +2,10 @@
 #include "protocol/constants.h"
 #include "parser.h"
 #include "i2c_slave.h"
-#include <usb_serial.h>
-
+#include "utils.h"
 #include "hardware.h"
+
+#include <usb_serial.h>
 volatile parser_state_t parser;
 generic_response response;
 
@@ -12,7 +13,7 @@ void initialize_parser(void){
   parser.status = PARSER_EMPTY;
   parser.packet_type = 0; // 0 is guaranteed to not be a packet type byte
   parser.head = (uint8_t*) &parser.packet;
-  memset(&parser.packet, 0, sizeof(parser.packet));
+  vmemset(&parser.packet, 0, sizeof(parser.packet));
 }
 
 void feed_data(uint8_t input){

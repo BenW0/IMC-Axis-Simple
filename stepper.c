@@ -10,6 +10,7 @@
 #include "hardware.h"
 #include "config.h"
 #include "stepper.h"
+#include "utils.h"
 
 static void set_step_events_per_minute(uint32_t); 
 
@@ -48,7 +49,7 @@ void initialize_stepper_state(void){
   NVIC_ENABLE_IRQ(IRQ_PIT_CH1);
   NVIC_ENABLE_IRQ(IRQ_PIT_CH2);
   // Zero all parameters, and go into idle
-  memset(&st, 0, sizeof(st));
+  vmemset(&st, 0, sizeof(st));
   current_block = NULL;
   st.state =  STATE_IDLE;
 }
@@ -234,7 +235,7 @@ void execute_move(void){
   if(current_block == NULL){
     // If this doesn't work, we're out of moves and go into idle.
     st.state = STATE_IDLE;
-    // May need to reset the sync line state here
+    trigger_sync_delay();
     return;
   }
   st.state = STATE_EXECUTE;
@@ -247,10 +248,11 @@ void execute_move(void){
   st.event_count = current_block->total_length;
   st.step_events_completed = 0;     
   out_dir = out_step = 0;
+  // Trigger the ISR to pull down the sync line after a given propogation dela
+  trigger_sync_delay();
   // Then immediately trigger the step more or less immediately
-
   PIT_TCTRL0 &= ~TEN;
-  PIT_LDVAL0 = 48;
+  PIT_LDVAL0 = 0;
   PIT_TCTRL0 |= TEN | TIE;
 }
 

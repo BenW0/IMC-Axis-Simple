@@ -43,8 +43,6 @@ void portb_isr(void){
 	uint32_t timer_value;
 	timer_value = SYNC_TIMEOUT - PIT_CVAL2; // Figure out how far we've gotten
 	PIT_TCTRL2 &= ~TEN; // Stop counting down
-	PIT_LDVAL2 = SYNC_DELAY; // Switch to triggering at the end of our propogation window
-	PIT_TCTRL2 |= TEN; // Start counting down
 	parameters.sync_error = timer_value;
       }
       execute_move();
@@ -71,7 +69,11 @@ void pit2_isr(void){
   PIT_TFLG2 = 1;
   // Stop the timer...
   PIT_TCTRL2 &= ~TEN;
-  CONTROL_DDR |= SYNC_BIT;
+
+  if(queue_length() > 0)
+    CONTROL_DDR |= SYNC_BIT;
+  else
+    float_sync_line();
   
   if(PIT_LDVAL2 != SYNC_DELAY){
     // We've timed out and bad things are happening   
@@ -81,7 +83,11 @@ void pit2_isr(void){
   }
 }
 
-
+void trigger_sync_delay(void){
+  PIT_TCTRL2 &= TEN; // Stop the timer 
+  PIT_LDVAL2 = SYNC_DELAY; // Switch to triggering at the end of our propogation window
+  PIT_TCTRL2 |= TEN | TIE; // Start counting down 
+}
 void enable_sync_interrupt(void){
   CONTROL_DDR &= ~SYNC_BIT;
   SYNC_CTRL = MUX_GPIO | IRQC_ONE;

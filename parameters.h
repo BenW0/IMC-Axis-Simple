@@ -35,7 +35,7 @@ typedef struct {
 extern parameters_t parameters;
 
 void reset_parameters(void);
-void handle_get_parameter(msg_get_param_t*,rsp_get_param_t*);
-void handle_set_parameter(msg_set_param_t*);
+void handle_get_parameter(volatile msg_get_param_t*,rsp_get_param_t*);
+void handle_set_parameter(volatile msg_set_param_t*);
 
 #endif

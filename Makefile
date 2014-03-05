@@ -15,7 +15,7 @@ CXX = $(COMPILER)/arm-none-eabi-g++
 OBJCOPY = $(COMPILER)/arm-none-eabi-objcopy
 SIZE = $(COMPILER)/arm-none-eabi-size
 
-OBJECTS = parser.o parameters.o queue.o protocol/message_structs.o main.o hardware.o stepper.o control_isr.o i2c_slave.o
+OBJECTS = parser.o parameters.o queue.o protocol/message_structs.o main.o hardware.o stepper.o control_isr.o i2c_slave.o utils.o
 
 VENDOR_C = $(wildcard $(VENDOR)/*.c)
 VENDOR_OBJECTS = $(patsubst %.c,%.o,$(VENDOR_C))

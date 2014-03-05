@@ -49,7 +49,6 @@ int main(void){
 	send_response(IMC_RSP_OK,0);
 	break;	
       case IMC_MSG_QUEUEMOVE:
-	usb_serial_putchar('Q');
 	{
 	  int space = enqueue_block(&parser.packet.move);
 	  send_response(space < 0 ? IMC_RSP_QUEUEFULL : IMC_RSP_OK,0);
