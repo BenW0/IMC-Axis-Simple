@@ -19,6 +19,7 @@ void reset_parameters(void){
   // Position lives in the stepper state, as it is volatile
   parameters.slowdown = 0;
   parameters.sync_error = 0;
+  parameters.last_home = 0;
 }
 
 uint32_t const_to_mask(imc_axis_parameter c){
@@ -88,6 +89,9 @@ void handle_get_parameter(msg_get_param_t* msg,rsp_get_param_t* rsp){
     break;
   case IMC_PARAM_SYNC_ERROR:
     rsp->value = parameters.sync_error;
+    break;
+  case IMC_PARAM_LAST_HOME:
+    rsp->value = parameters.last_home;
     break;
   default:
     ;

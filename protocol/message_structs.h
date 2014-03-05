@@ -57,9 +57,6 @@ typedef struct {
   imc_axis_error status;
 } __attribute__ ((packed)) rsp_status_t;
 
-typedef struct {
-  int32_t old_position;
-} __attribute__ ((packed)) rsp_home_t;
 
 //typedef struct __attribute__ ((__packed__)){
 //} __attribute__ ((packed)) rsp_queue_move_t;

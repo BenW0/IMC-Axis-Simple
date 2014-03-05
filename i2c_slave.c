@@ -24,14 +24,12 @@ void initialize_i2c(uint8_t addr){
   NVIC_ENABLE_IRQ(IRQ_I2C0);
 }
 
-uint8_t rxBuffer[BUFFER_LENGTH];
 uint8_t txBuffer[BUFFER_LENGTH];
 
-static volatile uint32_t rxBufferLength;
-static volatile uint32_t txBufferLength;
-static volatile uint32_t rxBufferIndex;
-static volatile uint32_t txBufferIndex;
+volatile uint32_t txBufferLength;
+volatile uint32_t txBufferIndex;
 volatile uint32_t irqcount;
+
 void on_request(void){;}
 
 void i2c0_isr(void)
@@ -39,45 +37,24 @@ void i2c0_isr(void)
   uint8_t status, c1, data;
   static uint8_t receiving=0;
 
-
   I2C0_S = I2C_S_IICIF;
-
   status = I2C0_S;
   //serial_print(".");
   if (status & I2C_S_ARBL) {
     // Arbitration Lost
     I2C0_S = I2C_S_ARBL;
-    //serial_print("a");
-    if (receiving && rxBufferLength > 0) {
-      // TODO: does this detect the STOP condition in slave receive mode?
-    }
     if (!(status & I2C_S_IAAS)) return;
   }
   if (status & I2C_S_IAAS) {
     //serial_print("\n");
     // Addressed As A Slave
     if (status & I2C_S_SRW) {
-      //serial_print("T");
-      // Begin Slave Transmit
-      receiving = 0;
-      txBufferLength = 0;
-      on_request();
-      
-      if (txBufferLength == 0) {
-	// is this correct, transmitting a single zero
-	// when we should send nothing?  Arduino's AVR
-	// implementation does this, but is it ok?
-	txBufferLength = 1;
-	txBuffer[0] = 0;
-      }
       I2C0_C1 = I2C_C1_IICEN | I2C_C1_IICIE | I2C_C1_TX;
       I2C0_D = txBuffer[0];
       txBufferIndex = 1;
     } else {
       // Begin Slave Receive
-      //serial_print("R");
       receiving = 1;
-      rxBufferLength = 0;
       I2C0_C1 = I2C_C1_IICEN | I2C_C1_IICIE;
       data = I2C0_D;
     }
@@ -89,12 +66,11 @@ void i2c0_isr(void)
     // Continue Slave Transmit
     //serial_print("t");
     if ((status & I2C_S_RXAK) == 0) {
-      //serial_print(".");
       // Master ACK'd previous byte
       if (txBufferIndex < txBufferLength) {
 	I2C0_D = txBuffer[txBufferIndex++];
       } else {
-	I2C0_D = 0;
+	I2C0_D = 0; // Pad with zeros
       }
       I2C0_C1 = I2C_C1_IICEN | I2C_C1_IICIE | I2C_C1_TX;
     } else {

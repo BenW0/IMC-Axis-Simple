@@ -86,3 +86,8 @@ void enable_sync_interrupt(void){
   CONTROL_DDR &= ~SYNC_BIT;
   SYNC_CTRL = MUX_GPIO | IRQC_ONE;
 }
+
+void float_sync_line(void){
+  CONTROL_DDR &= ~SYNC_BIT;
+  SYNC_CTRL = MUX_GPIO | IRQC_NONE;
+}

@@ -18,6 +18,7 @@ typedef struct {
     msg_queue_move_t move;    
     msg_get_param_t get_param;
     msg_set_param_t set_param;
+    uint8_t pad[sizeof(msg_queue_move_t) + 1];
   } packet;
 } parser_state_t;
 
@@ -36,4 +37,8 @@ void feed_data(uint8_t);
 extern generic_response response;
 // Response type, and number of bytes of response to write
 void send_response(imc_response_type,uint32_t);
+
+extern uint8_t status_byte;
+extern volatile uint8_t* txHead;
+extern volatile uint32_t txRemaining;
 #endif

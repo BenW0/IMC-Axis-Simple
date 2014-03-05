@@ -1,6 +1,5 @@
 #include "parser.h"
 #include "queue.h"
-
 #include "protocol/constants.h"
 #include "protocol/message_structs.h"
 #include "hardware.h"
@@ -24,14 +23,18 @@ int main(void){
   // Configure all of the hardware and internal state
   reset_state();
   reset_hardware();
+  float_sync_line();
   while(1){
+    if(parser.status == PARSER_ERR){
+      send_response(IMC_RSP_UNKNOWN,0);
+      initialize_parser();
+      continue;
+    }
     if(parser.status == PARSER_NEW_EVENT){
       switch(parser.packet_type){
       case IMC_MSG_INITIALIZE:
 	reset_state();
-	enable_sync_interrupt();
-	STEPPER_PORT(SOR) = STEP_BIT;
-
+	float_sync_line();
  	response.init.slave_hw_ver = 0;
 	response.init.slave_fw_ver = 0;
 	response.init.queue_depth = MOTION_QUEUE_LENGTH;
@@ -46,20 +49,9 @@ int main(void){
 	send_response(IMC_RSP_OK,0);
 	break;	
       case IMC_MSG_QUEUEMOVE:
+	usb_serial_putchar('Q');
 	{
-	  msg_queue_move_t test;
-	  int space;
-	  test.length = 100;
-	  test.total_length = 100;
-	  test.initial_rate = 100;
-	  test.final_rate = 100;
-	  test.nominal_rate = 4000;
-	  test.acceleration = 128000;
-	  test.stop_accelerating = 20;
-	  test.start_decelerating = 80;
-
-	  space = enqueue_block(&test);
-
+	  int space = enqueue_block(&parser.packet.move);
 	  send_response(space < 0 ? IMC_RSP_QUEUEFULL : IMC_RSP_OK,0);
 	  // If we're adding moves in idle state, make sure that the sync interface is listening
 	  if(st.state == STATE_IDLE)

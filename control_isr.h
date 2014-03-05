@@ -5,5 +5,7 @@
 #define SYNC_DELAY 48 // One MS
 
 void enable_sync_interrupt(void); 
+// Tri-state sync pin, but don't enable any interrupt
+void float_sync_line(void);
 
 #endif

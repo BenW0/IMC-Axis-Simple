@@ -29,6 +29,7 @@ typedef struct {
   // Position lives in the stepper state
   uint32_t slowdown;
   uint32_t sync_error;
+  int32_t  last_home;
 } parameters_t;
 
 extern parameters_t parameters;
