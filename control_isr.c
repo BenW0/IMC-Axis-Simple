@@ -70,16 +70,13 @@ void pit2_isr(void){
   // Stop the timer...
   PIT_TCTRL2 &= ~TEN;
 
-  if(queue_length() > 0)
-    CONTROL_DDR |= SYNC_BIT;
-  else
-    float_sync_line();
-  
   if(PIT_LDVAL2 != SYNC_DELAY){
     // We've timed out and bad things are happening   
     st.state = STATE_ERROR;
     parameters.error_low = IMC_ERR_TIMEOUT; // Maybe not best error code, but...
     stop_motion();
+  }else{
+    CONTROL_DDR |= SYNC_BIT;
   }
 }
 

@@ -51,8 +51,6 @@ typedef struct {
 } __attribute__ ((packed)) rsp_initialize_t;
 
 typedef struct {
-  int32_t location;
-  uint32_t sync_error;
   uint16_t queued_moves;
   imc_axis_error status;
 } __attribute__ ((packed)) rsp_status_t;

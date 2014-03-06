@@ -1,3 +1,5 @@
+all: main.hex
+
 CLOCK = 48000000
 
 TEENSY_PATH = ~/498/teensy-toolchain
@@ -35,8 +37,6 @@ i2c_test.elf: i2c_test.o i2c_slave.o $(VENDOR_OBJECTS)
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) 
 
 -include $(OBJS:.o=.d)
-
-all: main.hex
 
 clean:
 	rm -f *.o *.d *.elf *.hex

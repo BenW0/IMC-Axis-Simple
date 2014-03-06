@@ -235,7 +235,7 @@ void execute_move(void){
   if(current_block == NULL){
     // If this doesn't work, we're out of moves and go into idle.
     st.state = STATE_IDLE;
-    trigger_sync_delay();
+    float_sync_line();
     return;
   }
   st.state = STATE_EXECUTE;
@@ -252,7 +252,7 @@ void execute_move(void){
   trigger_sync_delay();
   // Then immediately trigger the step more or less immediately
   PIT_TCTRL0 &= ~TEN;
-  PIT_LDVAL0 = 0;
+  PIT_LDVAL0 = 100;
   PIT_TCTRL0 |= TEN | TIE;
 }
 

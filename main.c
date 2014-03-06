@@ -58,8 +58,6 @@ int main(void){
 	}
 	break;
       case IMC_MSG_STATUS:
-	response.status.location = get_position();
-	response.status.sync_error = parameters.sync_error;
 	response.status.queued_moves = queue_length();
 	if(st.state == STATE_ERROR){
 	  response.status.status = parameters.error_low;
