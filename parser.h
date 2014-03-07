@@ -4,6 +4,9 @@
 #include "protocol/message_structs.h"
 #include "protocol/constants.h"
 
+#define BUFFER_LENGTH 32
+void initialize_i2c(uint8_t);
+
 #define PARSER_NEW_EVENT 0
 #define PARSER_EMPTY 1
 #define PARSER_ERR 2
@@ -37,7 +40,6 @@ extern generic_response response;
 // Response type, and number of bytes of response to write
 void send_response(imc_response_type,uint32_t);
 
-extern uint8_t status_byte;
 extern volatile uint8_t* txHead;
 extern volatile uint32_t txRemaining;
 #endif
