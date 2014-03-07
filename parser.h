@@ -13,6 +13,7 @@ void initialize_i2c(uint8_t);
 
 typedef struct {
   uint32_t status;
+  uint32_t big_packet;
   imc_message_type packet_type;
   uint32_t remaining;
   uint8_t* head;
@@ -42,4 +43,5 @@ void send_response(imc_response_type,uint32_t);
 
 extern volatile uint8_t* txHead;
 extern volatile uint32_t txRemaining;
+extern volatile uint32_t irqcount;
 #endif

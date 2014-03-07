@@ -59,6 +59,11 @@ void feed_data(uint8_t input){
     parser.packet_type = type;
     parser.remaining = imc_message_length[type] + 1; // Include an extra for the checksum
     parser.head = (uint8_t*) &parser.packet;
+
+    if(parser.remaining > PROTOCOL_MAX_TRANSMIT_SIZE){
+      parser.big_packet = 1;
+    }
+    
     return;
   }
   if(parser.remaining-- > 0){
@@ -126,7 +131,17 @@ void i2c0_isr(void)
       // Begin Slave Receive
       receiving = 1;
       I2C0_C1 = I2C_C1_IICEN | I2C_C1_IICIE;
+      // So for some reason that I absolutely don't understand, ignoring this byte actually is fine.
+      // What is this byte? I should run a test.
       data = I2C0_D;
+      if(parser.big_packet){
+	parser.big_packet = 0; // We're in the second transmision of a big packet, so we don't reinitialize the parser.
+      }else{
+	// Reset the parser state, but don't really bother to memset the data buffer
+	parser.status = PARSER_EMPTY;
+	parser.packet_type = 0; // 0 is guaranteed to not be a packet type
+	parser.head = (uint8_t*) &parser.packet;
+      }
     }
     I2C0_S = I2C_S_IICIF;
     return;

@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "constants.h"
 
+// Critical! All packets above this size MUST be split into two transmissions
+#define PROTOCOL_MAX_TRANSMIT_SIZE 32
+
 ////////////////////// Message Packet Structures /////////////////////////////////
 // All
 typedef struct {

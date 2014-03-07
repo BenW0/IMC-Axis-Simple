@@ -6,7 +6,6 @@
 #include "parameters.h"
 #include "stepper.h"
 #include "control_isr.h"
-#include "i2c_slave.h"
 #include <usb_serial.h>
 #include <mk20dx128.h>
 #include <pin_config.h>
