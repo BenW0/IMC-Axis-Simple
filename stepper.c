@@ -238,6 +238,7 @@ void execute_move(void){
     float_sync_line();
     return;
   }
+  enable_stepper();
   st.state = STATE_EXECUTE;
   // Initialize this trapezoid generator for this block
   st.trapezoid_adjusted_rate = current_block->initial_rate;
@@ -258,7 +259,6 @@ void execute_move(void){
 
 // Immediately kill all motion, probably killing position due to deceleration
 void stop_motion(void){
-  disable_stepper();
   PIT_TCTRL0 &= ~TEN;
 }
 

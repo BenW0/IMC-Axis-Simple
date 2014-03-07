@@ -133,7 +133,14 @@ void handle_set_parameter(volatile msg_set_param_t* msg){
     break;
   case IMC_PARAM_MOTOR_ON:
     // Do some IO to turn the motor on or off
+    enable_stepper();
     parameters.motor_on = msg->param_value; 
+
+    if(parameters.motor_on){
+      enable_stepper();
+    }else{
+      disable_stepper();
+    }
     break;
   case IMC_PARAM_LOCATION:
     // This may have a signed/unsigned issue. todo: figure that out

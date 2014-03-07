@@ -11,17 +11,13 @@
 #include <mk20dx128.h>
 #include <pin_config.h>
 
-void reset_state(void){
+int main(void){
+  initialize_i2c(2);
+  // Configure all of the hardware and internal state
   initialize_motion_queue();
   initialize_parser();
   reset_parameters();
   initialize_stepper_state();
-}
-
-int main(void){
-  initialize_i2c(2);
-  // Configure all of the hardware and internal state
-  reset_state();
   reset_hardware();
   float_sync_line();
   while(1){
@@ -33,7 +29,10 @@ int main(void){
     if(parser.status == PARSER_NEW_EVENT){
       switch(parser.packet_type){
       case IMC_MSG_INITIALIZE:
-	reset_state();
+	initialize_motion_queue();
+	initialize_parser();
+	// Unlike out first initialization round, don't reset parameters
+	initialize_stepper_state();
 	float_sync_line();
  	response.init.slave_hw_ver = 0;
 	response.init.slave_fw_ver = 0;
