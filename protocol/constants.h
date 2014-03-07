@@ -48,8 +48,9 @@ typedef enum {
   IMC_PARAM_MOTOR_IDLE_TIMEOUT,
   IMC_PARAM_SLOWDOWN,
   IMC_PARAM_LOCATION,
-  IMC_PARAM_SYNC_ERROR,      		// read only
-  IMC_PARAM_LAST_HOME // Read only
+  IMC_PARAM_SYNC_ERROR, // Read only
+  IMC_PARAM_LAST_HOME,  // Read only
+  IMC_PARAM_MICROSTEPPING // Write only
 } __attribute__ ((packed)) imc_axis_parameter;
 
 typedef enum {

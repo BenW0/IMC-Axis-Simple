@@ -2,12 +2,12 @@
 #include <mk20dx128.h>
 #include "protocol/constants.h"
 #define hardware_h
-// All stepper control is placed on port 
+// All stepper control is placed on port C
 #define STEPPER_PORT(reg) GPIOC_P##reg
 #define STEPPER_DDR GPIOC_PDDR
 // Pin 9  is stepper disable
 // Pin 10 is direction
-// Pin 11 is step
+// Pin 13 is step
 #define DISABLE_CTRL PORTC_PCR3
 #define DISABLE_BIT  (1<<3)
 #define DIR_CTRL PORTC_PCR4
@@ -34,9 +34,10 @@
 #define I2C_PORT(reg) GPIOB_P##reg
 #define I2C_DDR       GPIOB_PDDR
 
+// Pin 18
 #define SDA_CTRL PORTB_PCR3
 #define SDA_BIT  (1<<3)
-
+// Pin 19
 #define SCL_CTRL PORTB_PCR2
 #define SCL_BIT  (1<<2)
 

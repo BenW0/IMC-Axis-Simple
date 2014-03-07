@@ -1,6 +1,7 @@
 #include "parameters.h"
 #include "hardware.h"
 #include "stepper.h"
+#include "peripheral.h"
 #include "protocol/constants.h"
 #include "protocol/message_structs.h"
 
@@ -145,6 +146,9 @@ void handle_set_parameter(volatile msg_set_param_t* msg){
   case IMC_PARAM_LOCATION:
     // This may have a signed/unsigned issue. todo: figure that out
     set_position(msg->param_value);
+    break;
+  case IMC_PARAM_MICROSTEPPING:
+    set_microstepping(msg->param_value);
     break;
   default:
     break;

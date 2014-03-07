@@ -6,17 +6,20 @@
 #include "parameters.h"
 #include "stepper.h"
 #include "control_isr.h"
+#include "config.h"
+#include "peripheral.h"
 #include <usb_serial.h>
 #include <mk20dx128.h>
 #include <pin_config.h>
 
 int main(void){
-  initialize_i2c(2);
+  initialize_i2c(I2C_BASE_ADDRESS + read_i2c_address());
   // Configure all of the hardware and internal state
   initialize_motion_queue();
   initialize_parser();
   reset_parameters();
   initialize_stepper_state();
+  set_microstepping(DEFAULT_MICROSTEPPING);
   reset_hardware();
   float_sync_line();
   while(1){
