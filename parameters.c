@@ -24,7 +24,7 @@ void reset_parameters(void){
   parameters.last_home = 0;
 }
 
-uint32_t const_to_mask(imc_axis_parameter c){
+static uint32_t const_to_mask(imc_axis_parameter c){
   switch(c){
   case IMC_PARAM_FLIP_AXIS:
     return FLIP_AXIS;
@@ -46,6 +46,14 @@ uint32_t const_to_mask(imc_axis_parameter c){
     return 0;
   }
 }
+
+static uint32_t limit_state(uint32_t dir){
+  uint32_t bit = dir ? MAX_LIMIT_BIT : MIN_LIMIT_BIT;
+  uint32_t invert = (parameters.homing & (dir ? INVERT_MAX : INVERT_MIN)) ? bit : 0;
+  return ((CONTROL_PORT(DIR) ^ invert) & bit) ? 1 : 0;
+}
+
+
 
 void handle_get_parameter(volatile msg_get_param_t* msg,rsp_get_param_t* rsp){
   switch(msg->param_id){
@@ -94,6 +102,12 @@ void handle_get_parameter(volatile msg_get_param_t* msg,rsp_get_param_t* rsp){
     break;
   case IMC_PARAM_LAST_HOME:
     rsp->value = parameters.last_home;
+    break;
+  case IMC_PARAM_MIN_LIMIT_STATE:
+    rsp->value = limit_state(0);
+    break;
+  case IMC_PARAM_MAX_LIMIT_STATE:
+    rsp->value = limit_state(1);
     break;
   default:
     ;
