@@ -122,7 +122,14 @@ void handle_set_parameter(volatile msg_set_param_t* msg){
     break;
   case IMC_PARAM_MIN_POS: parameters.min_pos = msg->param_value; break;
   case IMC_PARAM_MAX_POS: parameters.max_pos = msg->param_value; break;
-  case IMC_PARAM_HOMING_FEEDRATE: parameters.homing_feedrate = msg->param_value; break;
+
+  case IMC_PARAM_HOMING_FEEDRATE: 
+    {
+      uint32_t minimum = msg->param_value;
+      minimum = minimum < MINIMUM_STEPS_PER_MINUTE ? MINIMUM_STEPS_PER_MINUTE : minimum;
+      parameters.homing_feedrate = minimum;
+    }
+    break;
   case IMC_PARAM_HOME_POS: parameters.home_pos = msg->param_value; break;
   case IMC_PARAM_MOTOR_IDLE_TIMEOUT: parameters.motor_timeout = msg->param_value; break;
   case IMC_PARAM_SLOWDOWN: parameters.slowdown = msg->param_value; break;

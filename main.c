@@ -8,6 +8,7 @@
 #include "control_isr.h"
 #include "config.h"
 #include "peripheral.h"
+#include "homing.h"
 #include <usb_serial.h>
 #include <mk20dx128.h>
 #include <pin_config.h>
@@ -68,6 +69,8 @@ int main(void){
 	send_response(IMC_RSP_OK,sizeof(rsp_status_t));
 	break;
       case IMC_MSG_HOME:
+	enter_homing_routine();
+	break;
       case IMC_MSG_QUICKSTOP:
 	send_response(IMC_RSP_ERROR,0);
 	break;
