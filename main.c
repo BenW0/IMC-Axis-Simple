@@ -14,6 +14,7 @@
 #include <pin_config.h>
 
 int main(void){
+  configure_nvic();
   initialize_i2c(I2C_BASE_ADDRESS + read_i2c_address());
   // Configure all of the hardware and internal state
   initialize_motion_queue();

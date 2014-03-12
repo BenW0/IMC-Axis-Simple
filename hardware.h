@@ -49,4 +49,7 @@ void reset_hardware(void);
 // Set the data-direction, multiplexing, and pullup/down/high-z for a limit
 // pin. Also enables interrupts.
 void configure_limit_gpio(uint32_t, imc_pullup_values, uint32_t);
+
+void configure_nvic(void);
+
 #endif

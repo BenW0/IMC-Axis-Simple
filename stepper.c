@@ -44,10 +44,6 @@ void initialize_stepper_state(void){
   // Configure PIT 1 and 2 - reset timer and sync timer
   PIT_TCTRL1 = TIE;
   PIT_TCTRL2 = TIE;
-  // Start in the idle state, but first wake up to check for keep steppers enabled option.
-  NVIC_ENABLE_IRQ(IRQ_PIT_CH0);
-  NVIC_ENABLE_IRQ(IRQ_PIT_CH1);
-  NVIC_ENABLE_IRQ(IRQ_PIT_CH2);
   // Zero all parameters, and go into idle
   vmemset(&st, 0, sizeof(st));
   current_block = NULL;
@@ -222,7 +218,7 @@ void pit1_isr(void){
   STEPPER_PORT(TOR) = STEP_BIT;
 #ifdef STEP_PULSE_DELAY
   if(pit1_state.step_interrupt_status == PULSE_SET){
-    pit1.step_interrupt_status = PULSE_RESET;
+    pit1_state.step_interrupt_status = PULSE_RESET;
     PIT_LDVAL1 = pit1_state.pulse_length;
     PIT_TCTRL1 |= TEN;  
   }

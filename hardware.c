@@ -57,3 +57,24 @@ void reset_hardware(void){
   configure_limit_gpio(0, IMC_PULLDOWN, parameters.homing);
   configure_limit_gpio(1, IMC_PULLDOWN, parameters.homing);
 }
+
+void configure_nvic(void){
+ // Start in the idle state, but first wake up to check for keep steppers enabled option.
+  NVIC_ENABLE_IRQ(IRQ_PIT_CH0);
+  NVIC_ENABLE_IRQ(IRQ_PIT_CH1);
+  NVIC_ENABLE_IRQ(IRQ_PIT_CH2);
+  // This is already done in the default boot sequence, but that could change and enabling is idempotent...
+  // port b is responsible for limits and the sync protocol - rather critical to have interrupts.
+  NVIC_ENABLE_IRQ(IRQ_PORTB);
+  NVIC_ENABLE_IRQ(IRQ_I2C0);
+  // Limits/sync and pin toggle/reset isr get the highest priority
+  NVIC_SET_PRIORITY(IRQ_PORTB, 0);
+  NVIC_SET_PRIORITY(IRQ_PIT_CH1, 0);
+  // Followed by the main stepper isr
+  NVIC_SET_PRIORITY(IRQ_PIT_CH0, 1<<4);
+  // Lastly, the sync reset/timeout isr and i2c communication
+  NVIC_SET_PRIORITY(IRQ_I2C0, 2<<4);
+  NVIC_SET_PRIORITY(IRQ_PIT_CH2, 2<<4);
+  // All other ISRs are also priority zero, but shouldn't really ever fire
+}
+
