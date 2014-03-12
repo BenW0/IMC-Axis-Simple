@@ -33,7 +33,6 @@ void initialize_i2c(uint8_t addr){
   I2C0_C1 = I2C_C1_IICEN;
   I2C0_A1 = addr << 1;
   I2C0_C1 = I2C_C1_IICEN | I2C_C1_IICIE;
-  NVIC_ENABLE_IRQ(IRQ_I2C0);
 }
 
 void initialize_parser(void){
