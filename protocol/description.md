@@ -160,6 +160,10 @@ More parameters will be added in future slave firmware revisions to support more
 *  IMC_PARAM_SLOWDOWN – engage “slowdown” mode so buffers can fill. Not set locally (only via host)
 *  IMC_PARAM_LOCATION - Gets/sets the current encoder location. Can be used to manually set location.
 *  IMC_PARAM_SYNC_ERROR - (read only) The average time elapsed between move completion (releasing Move Complete pin) and Move Complete pin going high.
+*  IMC_PARAM_LAST_HOME - (read only) <<<not quite sure what this does>>>
+*  IMC_PARAM_MICROSTEPPING - (write only) The microstepping mode used by the driver.
+*  IMC_PARAM_MIN_LIMIT_STATE - (read only) The state of the minimum limit switch.
+*  IMC_PARAM_MAX_LIMIT_STATE - (read only) The state of the maximum limit switch.
 
 
 ## Slave Error Codes
