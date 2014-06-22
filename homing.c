@@ -59,6 +59,9 @@ void enter_homing_routine(void){
     st.state = STATE_ERROR; // Probably should set a real error code
     return;
   }
+
+  CONTROL_PORT(DDR) = SYNC_BIT;
+
   homing = parameters.homing;
   // Disable the appropriate hard limit function - choose the side we're homing to, don't change the pull-up
   // state, and pass a homing bit mask that results in either direction disabled.
@@ -66,7 +69,7 @@ void enter_homing_routine(void){
   // Make sure our motor is enabled 
   enable_stepper();
   // If the flip bit is asserted, we should home to the opposite of the home direction bit
-  direction_bit = (homing & FLIP_AXIS) ^ ((homing & HOME_DIR) >> 1);
+  direction_bit = !((homing & FLIP_AXIS) ^ ((homing & HOME_DIR) >> 1));
   set_direction(direction_bit);
 
   inv_homing_feed = MICROS_PER_MINUTE / parameters.homing_feedrate;
@@ -95,4 +98,5 @@ void enter_homing_routine(void){
   // restore hard limits
   delay(10);
   configure_limit_gpio(homing & HOME_DIR, PRESERVE_PULLUP, homing);
+  float_sync_line();
 }

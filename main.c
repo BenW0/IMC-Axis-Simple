@@ -70,6 +70,7 @@ int main(void){
 	send_response(IMC_RSP_OK,sizeof(rsp_status_t));
 	break;
       case IMC_MSG_HOME:
+	send_response(IMC_RSP_OK,0);
 	enter_homing_routine();
 	break;
       case IMC_MSG_QUICKSTOP:
