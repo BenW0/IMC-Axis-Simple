@@ -248,8 +248,6 @@ void execute_move(void){
   // Trigger the ISR to pull down the sync line after a given propogation dela
   trigger_sync_delay();
   // Then immediately trigger the step more or less immediately
-  PIT_TCTRL0 &= ~TEN;
-  PIT_LDVAL0 = 100;
   PIT_TCTRL0 |= TEN | TIE;
 }
 
