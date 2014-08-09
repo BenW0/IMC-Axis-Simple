@@ -102,13 +102,13 @@ void pit0_isr(void) {
   }
   
   if(st.state == STATE_SYNC){ // Done with a block, and done with outputting the last pulse
+    // Start counting down on timer 2
+    PIT_LDVAL2 = SYNC_TIMEOUT;
+    PIT_TCTRL2 |= TEN;
     // Configure the sync line as high-z input with an interrupt on logic one. I've had issues
     // with triggering on the edge...
     CONTROL_DDR &= ~SYNC_BIT;
     SYNC_CTRL = MUX_GPIO | IRQC_ONE;
-    // Start counting down on timer 2
-    PIT_LDVAL2 = SYNC_TIMEOUT;
-    PIT_TCTRL2 |= TEN;
     // Allow this to retrigger next time
     PIT_TFLG0 = 1;
     return;
