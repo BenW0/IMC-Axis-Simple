@@ -3,7 +3,7 @@ Intelligent Motor Controller Simple Axis
 
 This repository contains a simple implementation of the Intelligent Motor Control (IMC) Axis module, which runs the motor for one axis on a 3D printer, and interfaces with other Axis nodes and the Master node.
 
-The Master code can be found <<<link>>>
+The Master code can be found at https://github.com/BenW0/IMC_Master_Marlin
 
 A much longer description of the project can be found in IMC Framework.pdf.
 
